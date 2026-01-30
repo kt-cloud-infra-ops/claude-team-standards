@@ -5,21 +5,14 @@
 ```
 docs/projects/luppiter_web/
 ├── architecture/        # 시스템 아키텍처
-│   ├── 시스템_아키텍처.md
-│   └── 권한_체계.md
 ├── api/                 # API 레퍼런스
-│   └── API_레퍼런스.md
 ├── guide/               # 개발 가이드
-│   ├── AI_코딩_가이드.md
-│   ├── 테스트_가이드.md
-│   └── 로그인_세션.md
 ├── screens/             # 화면별 구조 (16개)
-│   └── *_화면_구조.md
 ├── sop/                 # 운영 절차서
-│   ├── luppiter-db-기존서버-데이터복구.md
-│   └── luppiter-db-신규서버-설치복구.md
-└── archive/             # 보관 문서
-    └── 마이크로서비스_리팩토링_초안.md
+├── e2e/                 # E2E 테스트
+├── temp/                # 임시 문서
+├── archive/             # 보관 문서
+└── coding-standards.md  # 프로젝트 코딩 표준
 ```
 
 ## 문서 목록
@@ -50,12 +43,13 @@ docs/projects/luppiter_web/
 
 ---
 
-## 공통 문서 참조
+## 공통 가이드 참조
 
-프로젝트 공통 규칙은 상위 문서 참조:
-- 코딩 스타일: `~/.claude/rules/coding-style.md`
-- 테스트 요구사항: `~/.claude/rules/testing.md`
-- Java 코드 스타일: `/docs/learnings/008-kt-cloud-java-code-style.md`
+- [Java 코드 스타일](../../guides/java/kt-cloud-style.md)
+- [SRE 코딩 가이드](../../guides/java/sre-coding.md)
+- [디자인 패턴](../../guides/java/design-patterns.md)
+- [DB 최적화](../../guides/db/database-optimization.md)
+- [Playwright E2E 패턴](../../guides/common/playwright-e2e-patterns.md)
 
 ---
 

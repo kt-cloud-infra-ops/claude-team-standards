@@ -9,13 +9,20 @@ claude/
 ├── CLAUDE.md           # 이 파일 - Claude에게 주는 지침
 ├── docs/               # 지식 관리
 │   ├── decisions/      # 의사결정 기록 (ADR)
-│   ├── learnings/      # 학습 내용
-│   └── automations/    # 발견된 자동화 패턴
+│   ├── guides/         # 공통 가이드 (언어별)
+│   │   ├── java/       # Java 가이드
+│   │   ├── db/         # DB 가이드
+│   │   └── common/     # 공통 가이드
+│   ├── projects/       # 프로젝트별 문서
+│   ├── automations/    # 발견된 자동화 패턴
+│   └── temp/           # 임시 문서
 ├── workspace/          # 하위 프로젝트 (심볼릭 링크)
 └── .claude/
     ├── settings.local.json
     └── commands/       # 슬래시 커맨드
 ```
+
+> 문서 저장 위치 규칙: `~/.claude/rules/doc-organization.md`
 
 ## 핵심 원칙
 
@@ -66,7 +73,7 @@ KT Cloud 전체 Java 프로젝트에 적용되는 코드 스타일 가이드.
 | 접두사 | Enum: E, Interface: I |
 | 접미사 | Entity, Configuration, Aspect |
 
-> 상세: `docs/learnings/008-kt-cloud-java-code-style.md`
+> 상세: `docs/guides/java/kt-cloud-style.md`
 
 ### 디자인 패턴 (개념)
 
@@ -81,8 +88,7 @@ KT Cloud 전체 Java 프로젝트에 적용되는 코드 스타일 가이드.
 
 **Anti-Pattern 주의**: God Object, Magic Numbers, Copy-Paste
 
-> 상세 (Java 예시): `workspace/luppiter-web/CLAUDE.md`
-> 참고: `docs/learnings/004-design-patterns-guide.md`
+> 상세: `docs/guides/java/design-patterns.md`
 
 ### SRE 코딩 규칙 (개념)
 
@@ -108,8 +114,7 @@ KT Cloud 전체 Java 프로젝트에 적용되는 코드 스타일 가이드.
 - [ ] 재시도/서킷브레이커 적용
 - [ ] Health check 구현
 
-> 상세 (Java 예시): `workspace/luppiter-web/CLAUDE.md`
-> 참고: `docs/learnings/005-sre-coding-guide.md`
+> 상세: `docs/guides/java/sre-coding.md`
 
 ---
 
@@ -149,10 +154,10 @@ KT Cloud 전체 Java 프로젝트에 적용되는 코드 스타일 가이드.
 4. 예외/메인터넌스 타입 선택 팝업 개발
 
 **참고 문서**:
-- 설계: `docs/o11y/01-design.md`
-- DDL: `docs/o11y/02-ddl.sql`
-- ADR: `docs/decisions/003-observability-integration-design.md`
-- 스키마: `docs/learnings/007-observability-event-schema.md`
+- 설계: `docs/projects/luppiter_scheduler/o11y/01-design.md`
+- DDL: `docs/projects/luppiter_scheduler/o11y/02-ddl.sql`
+- ADR: `docs/projects/luppiter_scheduler/decisions/003-observability-integration-design.md`
+- 스키마: `docs/projects/luppiter_scheduler/observability-event-schema.md`
 
 **일정**: 개발 2/13, 검증 2/27
 
@@ -192,7 +197,10 @@ KT Cloud 전체 Java 프로젝트에 적용되는 코드 스타일 가이드.
 
 ## 작업 시 참고사항
 
-- 새로운 의사결정이 있으면 `docs/decisions/` 에 ADR 형식으로 기록
-- 유용한 패턴을 발견하면 `docs/automations/` 에 기록
-- 세션에서 중요한 학습이 있으면 `docs/learnings/` 에 기록
+### 문서 저장 (자동 분류)
+- **프로젝트 작업 중** → `docs/projects/<현재_프로젝트>/` 하위에 저장
+- **프로젝트 무관** → `docs/decisions/`, `docs/guides/`, `docs/automations/`
+
+> 상세: `~/.claude/rules/doc-organization.md`
+
 - **하위 프로젝트 작업 시**: 해당 프로젝트의 CLAUDE.md 먼저 확인

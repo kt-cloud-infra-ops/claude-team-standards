@@ -1,10 +1,6 @@
 # SRE 코딩 가이드
 
-## 날짜
-2026-01-19
-
-## 목적
-안정적이고 운영 가능한 시스템을 위한 SRE(Site Reliability Engineering) 관점의 코딩 가이드
+> KT Cloud Java 프로젝트 공통 가이드 - 운영/회복력 관점
 
 ---
 
