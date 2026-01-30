@@ -1,0 +1,28 @@
+# 워크스페이스 (개인별 심볼릭 링크)
+workspace/*
+!workspace/.gitkeep
+
+# 개인 설정
+workspace.json
+.claude/settings.local.json
+
+# IDE
+.idea/
+
+# 외부 저장소
+everything-claude-code/
+
+# 로그
+logs/
+
+# 임시 파일
+*.bak
+*.tmp
+.DS_Store
+
+# 세션 데이터
+.claude/todos/
+
+# Gemini (개인용)
+.gemini
+gemini.md

@@ -1,0 +1,17 @@
+# 하위 프로젝트 관리
+
+이 폴더에는 하위 프로젝트들의 심볼릭 링크 또는 참조 파일을 저장합니다.
+
+## 프로젝트 추가 방법
+
+### 심볼릭 링크로 연결
+```bash
+ln -s /path/to/your/project ./project-name
+```
+
+### 또는 참조 파일 생성
+`project-name.ref` 파일을 만들고 경로를 기록:
+```
+path: /path/to/your/project
+description: 프로젝트 설명
+```

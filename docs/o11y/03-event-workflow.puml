@@ -1,0 +1,253 @@
+@startuml 이벤트_연동_전체_워크플로우
+
+title 이벤트 연동 전체 워크플로우 (Swimlane)
+
+skinparam backgroundColor #FEFEFE
+skinparam swimlaneWidth 180
+skinparam activityFontSize 11
+
+|사용자|
+|Luppiter Web|
+|Luppiter Scheduler|
+|DB|
+|#LightBlue|모니터링 시스템|
+
+' ============================================
+' 흐름 1: 실시간 이벤트 처리 (Worker)
+' ============================================
+|모니터링 시스템|
+start
+:이벤트 발생;
+
+fork
+    :Zabbix 이벤트;
+fork again
+    :Zenius 이벤트;
+fork again
+    :O11y 이벤트;
+end fork
+
+|Luppiter Scheduler|
+note right
+    **EventWorkerFactory**
+    ├─ EST010: ZabbixEventWorker (v5)
+    ├─ EST011: ZabbixEventWorker (v7)
+    ├─ EST020: ZeniusEventWorker
+    └─ EST030: ObservabilityEventWorker
+end note
+
+fork
+    :ZabbixEventWorker\n(EST010/EST011);
+    :Zabbix API 폴링;
+fork again
+    :ZeniusEventWorker\n(EST020);
+    :Zenius DB 조회\n(seq 기반 증분);
+fork again
+    :ObservabilityEventWorker\n(EST030);
+    :O11y DB 조회\n(seq 기반 증분);
+end fork
+
+:이벤트 타입 분류\n(Infra/Service/Platform);
+
+if (이벤트 타입?) then (Infra)
+    :호스트 IP 기반\n인벤토리 조회;
+    :관제영역 파생\n(CSW/HW/NW/VM);
+elseif (Service/Platform) then
+    :네임스페이스+리전 기반\n서비스 등록 여부 확인;
+    if (등록된 서비스?) then (No)
+        |모니터링 시스템|
+        :미등록 이벤트 알림\n(Slack #luppiter-unregistered-events);
+        stop
+    else (Yes)
+        |Luppiter Scheduler|
+        :계위체계 조회\n(L1~L4);
+    endif
+endif
+
+|DB|
+:예외 대상 목록 조회\n(cmon_service_exception)\n※ 모든 시스템 DB 자체 관리;
+
+note right
+    메인터넌스는 소스 시스템에서
+    API로 실제 중단되므로
+    이벤트 자체가 발생하지 않음
+    (Zabbix/O11y만 지원)
+end note
+
+|Luppiter Scheduler|
+if (예외 대상?) then (Yes)
+    :이벤트 무시 처리;
+    stop
+else (No)
+    :정상 이벤트 처리;
+endif
+
+|DB|
+:이벤트 저장\n(cmon_event_info);
+:응대 정보 저장\n(cmon_event_resp_manage_info);
+
+|Luppiter Scheduler|
+:이벤트 처리 완료;
+stop
+
+' ============================================
+' 흐름 2: 이벤트 조회 (Web)
+' ============================================
+|사용자|
+start
+:이벤트 조회 요청;
+
+|Luppiter Web|
+:사용자 권한 확인\n(호스트그룹/레이어코드);
+
+|DB|
+:권한 기반 이벤트 조회\n(계위체계 필터링);
+
+|Luppiter Web|
+:이벤트 목록 반환;
+
+|사용자|
+:이벤트 확인\n(인지/이관/조치완료);
+stop
+
+' ============================================
+' 흐름 3-1: 인벤토리 등록 (Infra: Zabbix/Zenius/O11y)
+' ============================================
+|사용자|
+start
+:인벤토리 등록 요청\n(Infra 대상);
+
+|Luppiter Web|
+:모니터링 유형 선택\n(Zabbix/Zenius/O11y Infra);
+
+|DB|
+:인벤토리 등록\n(inventory_master);
+
+|Luppiter Web|
+if (유형?) then (Zabbix)
+    |모니터링 시스템|
+    :Zabbix API 등록;
+else (Zenius/O11y Infra)
+    note right
+        Zenius(NW), O11y Infra(CSW/HW/VM)
+        DB만 등록 (소스 시스템 등록 X)
+    end note
+endif
+
+|사용자|
+:등록 완료 확인;
+stop
+
+' ============================================
+' 흐름 3-2: 서비스/플랫폼 등록 (O11y Service/Platform)
+' ============================================
+|사용자|
+start
+:서비스/플랫폼 등록 요청\n(O11y Service/Platform);
+
+|Luppiter Web|
+:서비스/플랫폼 정보 입력\n(namespace, 리전, 표준서비스);
+
+|DB|
+:서비스/플랫폼 등록\n(cmon_service_inventory_master);
+:호스트그룹 자동생성;
+
+note right
+    key: target_name + region
+    DB만 등록 (소스 시스템 등록 X)
+end note
+
+|사용자|
+:등록 완료 확인;
+stop
+
+' ============================================
+' 흐름 3-3: 관제 대상 삭제
+' ============================================
+|사용자|
+start
+:관제 대상 삭제 요청;
+
+|Luppiter Web|
+:모니터링 유형 선택\n(Zabbix/Zenius/O11y);
+
+|DB|
+:삭제 정보 저장\n(cmon_manage_hosts_*);
+
+|Luppiter Web|
+if (유형?) then (Zabbix)
+    |모니터링 시스템|
+    :Zabbix API 실제 삭제;
+else (Zenius/O11y)
+    |DB|
+    :DB 인벤토리만 삭제\n(소스 시스템 삭제 X);
+endif
+
+|사용자|
+:삭제 완료 확인;
+stop
+
+' ============================================
+' 흐름 4: 예외 관리 (모든 시스템)
+' ============================================
+|사용자|
+start
+:예외 등록 요청;
+
+|Luppiter Web|
+:모니터링 유형 선택\n(Zabbix/Zenius/O11y);
+
+if (유형?) then (Zabbix)
+    |DB|
+    :장비 대상 조회\n(inventory_master);
+    |모니터링 시스템\n(Zabbix/Zenius/O11y)|
+    :Zabbix API 호출\n(trigger 목록 조회);
+    |Luppiter Web|
+    :이벤트 목록 표시\n(API 기반);
+elseif (Zenius) then
+    |DB|
+    :장비 대상 조회\n(inventory_master);
+    :이벤트 목록 조회\n(인벤토리 기반);
+    |Luppiter Web|
+    :이벤트 목록 표시\n(DB 기반);
+else (O11y)
+    |DB|
+    :장비 대상 조회\n(cmon_service_inventory_master);
+    :이벤트 목록 조회\n(인벤토리 기반);
+    |모니터링 시스템\n(Zabbix/Zenius/O11y)|
+    :O11y API 호출\n(이벤트 목록 조회);
+    |Luppiter Web|
+    :이벤트 목록 표시\n(인벤토리 + API);
+endif
+
+|사용자|
+:예외 대상 선택;
+
+|DB|
+:예외 정보 저장\n(cmon_service_exception)\n※ DB 자체 관리 (API 연동 X);
+
+|사용자|
+:예외 적용 확인;
+stop
+
+' ============================================
+' 흐름 5: 메인터넌스 관리 (Zabbix/O11y만)
+' ============================================
+|사용자|
+start
+:메인터넌스 등록 요청\n(Zabbix 또는 O11y);
+
+|Luppiter Web|
+:메인터넌스 정보 입력;
+
+|DB|
+:메인터넌스 정보 저장\n(cmon_service_maintenance);
+
+|모니터링 시스템|
+:API 실제 중단 처리\n(Zabbix API / O11y API)\n※ Zenius는 미지원;
+
+|사용자|
+:메인터넌스 적용 확인;
+stop
+
+@enduml

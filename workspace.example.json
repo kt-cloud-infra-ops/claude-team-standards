@@ -1,0 +1,23 @@
+{
+  "basePath": "/Users/username/Documents/develop/workspace",
+  "projects": [
+    {
+      "name": "luppiter_web",
+      "description": "웹 프로젝트 (Java/Spring)"
+    },
+    {
+      "name": "luppiter_scheduler",
+      "description": "스케줄러 (Java/Spring)"
+    },
+    {
+      "name": "test_luppiter_inv_api",
+      "description": "인벤토리 API (Spring Boot)"
+    },
+    {
+      "name": "luppiter_morning_report",
+      "description": "모닝 리포트 (Python)"
+    }
+  ],
+  "lastSync": "2026-01-30",
+  "user": "username"
+}
