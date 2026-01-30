@@ -17,7 +17,7 @@
 ```bash
 # 홈 디렉토리의 Documents에 클론 (권장)
 cd ~/Documents
-git clone https://github.com/<org>/claude-team-standards.git claude
+git clone https://github.com/DecDanny/claude-team-standards.git claude
 ```
 
 ### 2. 워크스페이스 설정
