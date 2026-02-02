@@ -2,15 +2,15 @@
 # PR 생성 시 자동으로 리뷰어가 할당됩니다.
 
 # 기본 소유자 (모든 파일)
-* @kt-cloud-infra-ops/claude-admins
+* @kt-cloud-infra-ops/infraops
 
 # ============================================
 # 공용 파일 - 관리자 승인 필수
 # ============================================
-/CLAUDE.md @kt-cloud-infra-ops/claude-admins
-/README.md @kt-cloud-infra-ops/claude-admins
-/.claude/commands/ @kt-cloud-infra-ops/claude-admins
-/.claude/rules/ @kt-cloud-infra-ops/claude-admins
+/CLAUDE.md @kt-cloud-infra-ops/infraops
+/README.md @kt-cloud-infra-ops/infraops
+/.claude/commands/ @kt-cloud-infra-ops/infraops
+/.claude/rules/ @kt-cloud-infra-ops/infraops
 
 # ============================================
 # 서비스별 담당자
@@ -20,19 +20,19 @@
 /docs/service/luppiter/ @82253890
 
 # Gaia - 인프라 자동화
-/docs/service/gaia/ @kt-cloud-infra-ops/gaia-team
+/docs/service/gaia/ @kt-cloud-infra-ops/infraops
 
 # Hera - 모니터링 플랫폼
-/docs/service/hera/ @kt-cloud-infra-ops/hera-team
+/docs/service/hera/ @kt-cloud-infra-ops/infraops
 
 # InfraFE - 인프라 프론트엔드
-/docs/service/infrafe/ @kt-cloud-infra-ops/infrafe-team
+/docs/service/infrafe/ @kt-cloud-infra-ops/infraops
 
 # CMDB
-/docs/service/cmdb/ @kt-cloud-infra-ops/cmdb-team
+/docs/service/cmdb/ @kt-cloud-infra-ops/infraops
 
 # Hermes - 메시징/알림
-/docs/service/hermes/ @kt-cloud-infra-ops/hermes-team
+/docs/service/hermes/ @kt-cloud-infra-ops/infraops
 
 # ============================================
 # 개인 폴더 - 본인만 수정 (리뷰 불필요)
@@ -41,8 +41,8 @@
 # /docs/personal/{사번}/ @{github-id}
 
 # ============================================
-# 공용 학습/자동화 - 누구나 기여 가능
+# 공용 학습/자동화 - 팀 전체
 # ============================================
-/docs/claude_automations/ @kt-cloud-infra-ops/claude-admins
-/docs/claude_lessons_learned/ @kt-cloud-infra-ops/claude-admins
-/docs/decisions/ @kt-cloud-infra-ops/claude-admins
+/docs/claude_automations/ @kt-cloud-infra-ops/infraops
+/docs/claude_lessons_learned/ @kt-cloud-infra-ops/infraops
+/docs/decisions/ @kt-cloud-infra-ops/infraops
