@@ -13,7 +13,8 @@ claude/
 │   │   ├── gaia/                  # Gaia - 인프라 자동화
 │   │   ├── hera/                  # Hera - 모니터링 플랫폼
 │   │   ├── infrafe/               # InfraFE - 인프라 프론트엔드
-│   │   └── cmdb_hermes/           # CMDB Hermes - 구성관리 DB
+│   │   ├── cmdb/                  # CMDB - 구성관리 DB
+│   │   └── hermes/                # Hermes - 메시징/알림
 │   │
 │   ├── claude_automations/        # Claude용 - 자동화 패턴
 │   ├── claude_lessons_learned/    # Claude용 - 학습 내용

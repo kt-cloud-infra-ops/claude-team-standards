@@ -28,8 +28,11 @@
 # InfraFE - 인프라 프론트엔드
 /docs/service/infrafe/ @kt-cloud-infra-ops/infrafe-team
 
-# CMDB Hermes
-/docs/service/cmdb_hermes/ @kt-cloud-infra-ops/cmdb-team
+# CMDB
+/docs/service/cmdb/ @kt-cloud-infra-ops/cmdb-team
+
+# Hermes - 메시징/알림
+/docs/service/hermes/ @kt-cloud-infra-ops/hermes-team
 
 # ============================================
 # 개인 폴더 - 본인만 수정 (리뷰 불필요)

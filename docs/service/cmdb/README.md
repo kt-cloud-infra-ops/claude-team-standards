@@ -1,6 +1,6 @@
-# CMDB Hermes 서비스 문서
+# CMDB 서비스 문서
 
-CMDB (Configuration Management Database) 시스템
+Configuration Management Database
 
 ## Confluence 동기화
 
@@ -10,7 +10,7 @@ CMDB (Configuration Management Database) 시스템
 ## 폴더 구조
 
 ```
-cmdb_hermes/
+cmdb/
 ├── architecture/       # 서비스 아키텍처
 ├── features/           # 주요 기능 명세
 ├── sop/                # 운영 절차서
@@ -22,10 +22,10 @@ cmdb_hermes/
 
 | 로컬 폴더 | Confluence 위치 |
 |----------|----------------|
-| `architecture/` | [CMDB Hermes] 서비스 아키텍처 |
-| `features/` | [CMDB Hermes] 주요 기능 명세서 |
-| `sop/` | [CMDB Hermes] SOP |
-| `decisions/` | [CMDB Hermes] History (설계 결정) |
+| `architecture/` | [CMDB] 서비스 아키텍처 |
+| `features/` | [CMDB] 주요 기능 명세서 |
+| `sop/` | [CMDB] SOP |
+| `decisions/` | [CMDB] History (설계 결정) |
 
 ## 프로젝트 구성
 
