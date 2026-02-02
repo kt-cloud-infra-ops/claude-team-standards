@@ -12,6 +12,7 @@
 | 004 | SQL DDL 생성 | 테이블 DDL 자동 생성 및 마이그레이션 | **HIGH** | 설계 완료 | 90% 시간 단축 |
 | 005 | Playwright E2E 테스트 | 테스트 워크플로우 및 스크린샷/트레이스 관리 | **MEDIUM** | 설계 완료 | 75% 시간 단축 |
 | 006 | 규칙 파일 교차참조 | 루트 규칙 파일 간 자동 관계 매핑 및 동기화 | **MEDIUM** | 설계 완료 | 95% 시간 단축 |
+| 009 | Jira REST API 자동화 | MCP 한계 우회, 필드 업데이트/상태 전환 | **HIGH** | 구현 완료 | 70% 시간 단축 |
 
 ## 세션 통계
 
@@ -142,6 +143,20 @@ Claude Code 규칙 파일 간 자동 관계 매핑 및 동기화:
 
 **예시**: `agents.md`, `testing.md`, `security.md` 간 관계 정의
 
+### 009 - Jira REST API 자동화
+**파일**: [`009-jira-rest-api-automation.md`](./009-jira-rest-api-automation.md)
+
+Jira MCP 도구의 한계를 REST API 직접 호출로 우회:
+- 이슈 필드 업데이트 (duedate, description, 커스텀 필드)
+- 상태 전환 (transitions)
+- 에픽 링크 설정
+- ADF 형식 체크박스 생성
+- 월별 이슈 복사
+
+**헬퍼 클래스**: `workspace/claude_tools/jira_rest_api.py`
+
+**예시**: TECHIOPS26-213 이슈 생성 및 설정 자동화
+
 ## 활용 방법
 
 ### 슬래시 커맨드 사용 (향후)
@@ -191,7 +206,8 @@ docs/claude_automations/
 ├── 005-playwright-e2e-test-workflow.md
 ├── 006-cross-reference-rules-automation.md
 ├── 007-implementation-guide.md
-└── 008-session-analysis.md
+├── 008-session-analysis.md
+└── 009-jira-rest-api-automation.md
 ```
 
 ## 기여 방법
@@ -211,5 +227,5 @@ docs/claude_automations/
 
 ---
 
-**마지막 업데이트**: 2026-01-30
-**다음 검토 예정**: 2026-02-06 (일주일 후)
+**마지막 업데이트**: 2026-02-02
+**다음 검토 예정**: 2026-02-09 (일주일 후)
