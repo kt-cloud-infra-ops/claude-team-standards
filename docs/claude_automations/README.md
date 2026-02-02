@@ -181,7 +181,7 @@ python3 ddl_generator.py analyze cmon_event_info
 ## 문서 구조
 
 ```
-docs/automations/
+docs/claude_automations/
 ├── README.md (이 파일)
 ├── 000-template.md (템플릿)
 ├── 001-sql-procedure-analysis.md
@@ -189,7 +189,9 @@ docs/automations/
 ├── 003-performance-issue-doc.md
 ├── 004-sql-ddl-generator.md
 ├── 005-playwright-e2e-test-workflow.md
-└── 006-cross-reference-rules-automation.md
+├── 006-cross-reference-rules-automation.md
+├── 007-implementation-guide.md
+└── 008-session-analysis.md
 ```
 
 ## 기여 방법
@@ -202,10 +204,10 @@ docs/automations/
 
 ## 참고 자료
 
-- **메인 프로젝트 지침**: `/Users/jiwoong.kim/Documents/claude/CLAUDE.md`
-- **기술 가이드**: `/Users/jiwoong.kim/Documents/claude/docs/learnings/`
-- **의사결정 기록**: `/Users/jiwoong.kim/Documents/claude/docs/decisions/`
-- **성능 분석**: `/Users/jiwoong.kim/Documents/claude/docs/o11y/`
+- **메인 프로젝트 지침**: `CLAUDE.md`
+- **학습 내용**: `docs/claude_lessons_learned/`
+- **의사결정 기록**: `docs/decisions/`
+- **서비스 문서**: `docs/service/`
 
 ---
 

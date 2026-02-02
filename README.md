@@ -1,6 +1,6 @@
 # Claude Team Standards
 
-팀 전체가 일관된 방식으로 Claude Code를 사용하기 위한 공유 설정 저장소입니다.
+팀 전체가 일관된 방식으로 Claude Code/Cursor를 사용하기 위한 공유 설정 저장소입니다.
 
 ## 목적
 
@@ -15,7 +15,6 @@
 ### 1. 저장소 클론
 
 ```bash
-# 홈 디렉토리의 Documents에 클론 (권장)
 cd ~/Documents
 git clone https://github.com/kt-cloud-infra-ops/claude-team-standards.git claude
 ```
@@ -34,7 +33,7 @@ Claude Code 실행 후:
 
 ```bash
 cd ~/Documents/claude
-claude
+claude  # 또는 Cursor에서 폴더 열기
 ```
 
 ---
@@ -42,25 +41,42 @@ claude
 ## 폴더 구조
 
 ```
-claude-team-standards/
-├── CLAUDE.md              # Claude에게 주는 팀 공통 지침
-├── README.md              # 이 파일
-├── workspace.example.json # 워크스페이스 설정 예시
-├── .gitignore
+claude/
+├── CLAUDE.md                      # Claude에게 주는 지침
+├── README.md                      # 이 파일
+├── workspace/                     # 개인별 프로젝트 심볼릭 링크 (git 제외)
 │
-├── workspace/             # 개인별 프로젝트 심볼릭 링크 (git 제외)
-│
-├── docs/                  # 공유 문서
-│   ├── decisions/         # 의사결정 기록 (ADR)
-│   ├── learnings/         # 학습 내용
-│   ├── automations/       # 자동화 패턴
-│   └── projects/          # 프로젝트별 문서
-│       └── luppiter_web/  # 예: luppiter_web 문서
+├── docs/
+│   ├── service/                   # 서비스별 문서 (Confluence 동기화)
+│   │   └── luppiter/              # Luppiter 서비스
+│   │       ├── architecture/      # 시스템 아키텍처
+│   │       ├── features/          # 주요 기능 명세
+│   │       ├── sop/               # 운영 절차서
+│   │       ├── luppiter_scheduler/
+│   │       └── luppiter_web/
+│   │   # 향후: gaia/, hera/, infrafe/
+│   │
+│   ├── claude_automations/        # Claude용 - 자동화 패턴
+│   ├── claude_lessons_learned/    # Claude용 - 학습 내용
+│   │   ├── java/
+│   │   ├── db/
+│   │   └── common/
+│   ├── decisions/                 # 저장소 운영 ADR
+│   ├── ktcloud/                   # 회사 공통 가이드
+│   ├── personal/                  # 개인 문서
+│   └── temp/                      # 임시 문서
 │
 └── .claude/
-    ├── commands/          # 슬래시 커맨드
-    └── settings.local.json # 개인 설정 (git 제외)
+    ├── commands/                  # 슬래시 커맨드
+    └── rules/                     # 프로젝트별 규칙
 ```
+
+### 문서 분류 규칙
+
+| 접두사 | 의미 | Confluence |
+|--------|------|------------|
+| `claude_` | Claude AI가 참조/활용 | X |
+| 없음 | 사람이 보는 문서 | O |
 
 ---
 
@@ -95,16 +111,19 @@ claude-team-standards/
 - **시크릿 금지**: 하드코딩된 API 키, 비밀번호 절대 금지
 - **입력 검증**: 모든 사용자 입력 검증 필수
 
-> 상세 규칙: `~/.claude/rules/` 참조
+> 상세 규칙: `.claude/rules/` 참조
 
 ---
 
 ## 기여 방법
 
-1. 새로운 학습 내용 → `docs/learnings/`에 추가
-2. 의사결정 기록 → `docs/decisions/`에 ADR 작성
-3. 자동화 패턴 발견 → `docs/automations/`에 추가
-4. 슬래시 커맨드 개선 → `.claude/commands/` 수정
+| 내용 | 저장 위치 |
+|------|----------|
+| 서비스 문서 | `docs/service/{서비스}/` |
+| 학습 내용 | `docs/claude_lessons_learned/` |
+| 의사결정 기록 | `docs/decisions/` |
+| 자동화 패턴 | `docs/claude_automations/` |
+| 슬래시 커맨드 | `.claude/commands/` |
 
 ---
 

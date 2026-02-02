@@ -97,9 +97,9 @@ A layered architecture with:
 ## Related Documents
 
 ### In This Repository
-- **Project-Specific Rules**: See `docs/projects/<project-name>/`
-- **Java Guides**: See `java/` subdirectory
-- **Database Guides**: See `db/` subdirectory
+- **서비스별 문서**: `docs/service/luppiter/`
+- **Java Guides**: `docs/claude_lessons_learned/java/`
+- **Database Guides**: `docs/claude_lessons_learned/db/`
 
 ### Global Rules
 All global rules are in `~/.claude/rules/`:
@@ -114,8 +114,8 @@ All global rules are in `~/.claude/rules/`:
 - `testing.md` - Testing requirements (80%+ coverage)
 
 ### Related Projects
-- **luppiter_scheduler**: See `docs/projects/luppiter_scheduler/`
-- **luppiter_web**: See `docs/projects/luppiter_web/`
+- **luppiter_scheduler**: `docs/service/luppiter/luppiter_scheduler/`
+- **luppiter_web**: `docs/service/luppiter/luppiter_web/`
 
 ## How to Use These Documents
 
