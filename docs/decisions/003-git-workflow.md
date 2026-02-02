@@ -50,6 +50,40 @@ type:
 2. 충돌 시 담당자와 협의
 3. 공용 파일 충돌은 팀 채널에 공유
 
+### 6. 팀원 워크플로우
+
+#### 본인 담당 영역 (브랜치 불필요)
+
+```bash
+git pull origin main
+# 직접 수정
+git add . && git commit -m "docs: ..."
+git push
+```
+
+#### 공용/타 서비스 영역 (브랜치 필요)
+
+```bash
+git pull origin main
+git checkout -b docs/add-new-command
+# 수정
+git add . && git commit -m "feat: ..."
+git push -u origin docs/add-new-command
+# GitHub에서 PR 생성 → 리뷰 → 머지
+```
+
+#### 브랜치 필요 여부 판단
+
+| 수정 대상 | 브랜치 | PR |
+|----------|--------|-----|
+| `docs/personal/{본인}/` | ❌ | ❌ |
+| `docs/service/{담당서비스}/` | ❌ | ❌ |
+| `docs/service/{타서비스}/` | ⭕ | ⭕ |
+| `CLAUDE.md`, `.claude/*` | ⭕ | ⭕ |
+| `docs/claude_*`, `docs/decisions/` | ⭕ | ⭕ |
+
+> **간단 요약**: 본인 영역은 main에서 바로, 공용/남의 영역은 브랜치 + PR
+
 ## 시스템 제어
 
 ### CODEOWNERS (GitHub)
