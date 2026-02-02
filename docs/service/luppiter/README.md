@@ -16,12 +16,13 @@ luppiter/
 ├── history/            # History
 ├── sop/                # 운영 절차서
 ├── decisions/          # 서비스 레벨 ADR
-├── projects/           # 프로젝트별 문서
-│   ├── scheduler/      # luppiter_scheduler
-│   ├── web/            # luppiter_web
-│   └── morning_report/ # luppiter_morning_report
-└── support-projects/   # 지원 프로젝트
+└── projects/           # 프로젝트별 문서
+    ├── scheduler/      # luppiter_scheduler
+    ├── web/            # luppiter_web
+    └── morning_report/ # luppiter_morning_report
 ```
+
+> 지원 프로젝트는 `docs/support-projects/`로 이동
 
 ## Confluence 매핑
 
@@ -34,7 +35,6 @@ luppiter/
 | `projects/scheduler/decisions/` | [LUPPITER] History (설계 결정) |
 | `projects/web/screens/` | 주요 기능 명세서 > 화면 명세 |
 | `projects/web/api/` | 주요 기능 명세서 > API |
-| `support-projects/` | 05. 지원 프로젝트 |
 
 ## 프로젝트 구성
 

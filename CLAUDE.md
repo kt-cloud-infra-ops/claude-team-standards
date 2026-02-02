@@ -21,6 +21,7 @@ claude/
 │   │   ├── java/                  # Java 가이드
 │   │   ├── db/                    # DB 가이드
 │   │   └── common/                # 공통 가이드
+│   ├── support-projects/          # 지원 프로젝트 (Confluence 동기화)
 │   ├── decisions/                 # 이 저장소 운영 관련 ADR
 │   ├── ktcloud/                   # 회사 공통 가이드
 │   ├── personal/                  # 개인 문서
@@ -152,7 +153,7 @@ service/{서비스}/
 3. 서비스/플랫폼 등록 화면 개발
 
 **참고 문서**:
-- 설계: `docs/service/luppiter/support-projects/next-observability/`
+- 설계: `docs/support-projects/next-observability/`
 - ADR: `docs/service/luppiter/projects/scheduler/decisions/003-observability-integration-design.md`
 
 **일정**: 개발 2/13, 검증 2/27
@@ -187,6 +188,7 @@ service/{서비스}/
 | 문서 유형 | 저장 위치 |
 |----------|----------|
 | 서비스 문서 (Confluence) | `docs/service/{서비스}/` |
+| 지원 프로젝트 문서 | `docs/support-projects/{프로젝트}/` |
 | 프로젝트 문서 | `docs/service/{서비스}/projects/{프로젝트}/` |
 | 프로젝트별 설계 결정 | `docs/service/{서비스}/projects/{프로젝트}/decisions/` |
 | 임시 작업 파일 | `docs/temp/` |
