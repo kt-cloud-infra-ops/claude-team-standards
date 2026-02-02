@@ -15,7 +15,6 @@
 ```
 luppiter_scheduler/
 ├── decisions/           # 의사결정 기록 (ADR)
-├── o11y/                # Observability 연동 설계
 ├── event-pipeline.md    # 이벤트 파이프라인 구조
 └── observability-event-schema.md  # O11y 이벤트 스키마
 ```
@@ -30,15 +29,18 @@ luppiter_scheduler/
 |------|------|
 | [event-pipeline.md](event-pipeline.md) | 이벤트 취합 파이프라인 구조 |
 | [observability-event-schema.md](observability-event-schema.md) | Observability 이벤트 스키마 |
+| [event-combine-java-migration-design.md](event-combine-java-migration-design.md) | **이벤트 취합 Java 전환 설계서** |
+| [event-combine-implementation-guide.md](event-combine-implementation-guide.md) | **이벤트 취합 구현 가이드** (100% 코드) |
 
-### Observability 연동 (o11y/)
+### Observability 연동
 
-| 문서 | 설명 |
-|------|------|
-| [01-design.md](o11y/01-design.md) | 연동 설계 |
-| [02-ddl.sql](o11y/02-ddl.sql) | DDL 스크립트 |
-| [04-functional-spec.md](o11y/04-functional-spec.md) | 기능 명세 |
-| [05-implementation-guide.md](o11y/05-implementation-guide.md) | 구현 가이드 |
+> O11y 설계 문서는 상위 프로젝트에 위치: [luppiter_web/o11y](../luppiter_web/o11y/)
+
+| 담당 영역 | 내용 |
+|----------|------|
+| Worker | ObservabilityEventWorker (EST030) |
+| 프로시저 | p_combine_event_obs |
+| 임시 테이블 | x01_if_event_obs |
 
 ### 의사결정 (decisions/)
 
@@ -51,11 +53,16 @@ luppiter_scheduler/
 
 ## 공통 가이드 참조
 
-- [Java 코드 스타일](../../guides/java/kt-cloud-style.md)
-- [SRE 코딩 가이드](../../guides/java/sre-coding.md)
-- [디자인 패턴](../../guides/java/design-patterns.md)
-- [DB 최적화](../../guides/db/database-optimization.md)
+- [Java 코드 스타일](../../../claude_lessons_learned/java/kt-cloud-style.md)
+- [SRE 코딩 가이드](../../../claude_lessons_learned/java/sre-coding.md)
+- [디자인 패턴](../../../claude_lessons_learned/java/design-patterns.md)
+- [DB 최적화](../../../claude_lessons_learned/db/database-optimization.md)
+
+## Confluence 동기화
+
+이슈 히스토리는 Confluence에도 동기화됨:
+- `docs/confluence/luppiter/history/`
 
 ---
 
-**최종 업데이트**: 2026-01-30
+**최종 업데이트**: 2026-02-02

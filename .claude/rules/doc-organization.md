@@ -12,103 +12,120 @@
 
 ---
 
-## Default Storage Locations
+## 폴더 구분 (3가지)
 
-When creating or saving documents, use these rules:
+| 폴더 | 용도 | 대상 |
+|------|------|------|
+| `workspace/` | **코드만** | .java, .py, .js 등 |
+| `docs/service/` | **Confluence 동기화** (사람용) | 아키텍처, SOP, 히스토리, 화면 명세 |
+| `docs/claude_*` | **Claude 전용** | lessons_learned, automations |
+| `docs/service/*/claude_*` | **Claude 전용** (프로젝트별) | temp, 구현 가이드 |
 
-### Common/Shared Items → Upper Level
+**절대 workspace에 문서를 저장하지 않음!**
 
-Save to `docs/guides/` or `docs/` when:
-- Language-specific coding standards (java/, db/, common/)
-- Design patterns applicable across projects
-- SRE/operations guidelines
-- Reusable automation patterns
-- General best practices
+---
+
+## 폴더 구조
 
 ```
 docs/
-├── guides/           # Language/topic guides
-│   ├── java/         # Java-specific
-│   ├── db/           # Database-specific
-│   └── common/       # Cross-language
-├── automations/      # Reusable automation patterns
-└── decisions/        # Cross-project ADRs
+├── service/                 # Confluence 동기화 대상 (사람용)
+│   └── luppiter/
+│       ├── architecture/    # → [LUPPITER] 서비스 아키텍처
+│       ├── features/        # → [LUPPITER] 주요 기능 명세서
+│       ├── history/         # → [LUPPITER] History
+│       ├── sop/             # → [LUPPITER] SOP
+│       ├── support-projects/  # → 05. 지원 프로젝트
+│       ├── luppiter_scheduler/
+│       │   ├── decisions/   # → [LUPPITER] History (설계 결정)
+│       │   └── claude_temp/ # Claude 전용 (Confluence X)
+│       ├── luppiter_web/
+│       │   ├── screens/     # → [LUPPITER] 주요 기능 명세서 > 화면 명세
+│       │   ├── api/         # → [LUPPITER] 주요 기능 명세서 > API
+│       │   └── claude_temp/ # Claude 전용 (Confluence X)
+│       └── luppiter_morning_report/
+│
+├── claude_lessons_learned/  # Claude 학습 내용
+│   ├── java/
+│   ├── db/
+│   └── common/
+│
+├── claude_automations/      # 자동화 패턴
+│
+├── decisions/               # 팀 의사결정 (ADR)
+│
+└── temp/                    # 임시 문서
 ```
 
-### Project-Specific Items → Project Folders
+---
 
-Save to `docs/projects/<project_name>/` when:
-- Project-specific architecture/design docs
-- **Project-specific ADRs** (decisions/)
-- SOPs for specific systems
-- E2E test specs
-- API documentation for that project
-- Implementation guides for that project
+## Confluence 동기화 규칙
 
-```
-docs/projects/<project>/
-├── architecture/     # Project architecture
-├── api/              # API documentation
-├── decisions/        # Project-specific ADRs
-├── sop/              # Standard operating procedures
-├── e2e/              # E2E test documentation
-└── guide/            # Project-specific guides
-```
+### 동기화 대상 (`docs/service/luppiter/`)
 
-### Cross-Project/Global Decisions → docs/decisions/
+| 로컬 폴더 | Confluence 위치 | 설명 |
+|----------|----------------|------|
+| `architecture/` | [LUPPITER] 서비스 아키텍처 | 시스템 구조, 권한 체계 |
+| `features/` | [LUPPITER] 주요 기능 명세서 | API, 주요 기능 설명 |
+| `history/` | [LUPPITER] History | 트러블슈팅, 장애 대응 |
+| `sop/` | [LUPPITER] SOP | 운영 절차 |
+| `support-projects/` | 05. 지원 프로젝트 | O11y 연동 등 |
+| `luppiter_web/screens/` | [LUPPITER] 주요 기능 명세서 > 화면 명세 | 화면 기능 명세 |
+| `luppiter_web/api/` | [LUPPITER] 주요 기능 명세서 > API | API 명세 |
 
-Save to `docs/decisions/` when:
-- Team-wide policy decisions
-- Cross-project architectural decisions
-- Tool/technology selection affecting multiple projects
-- Process/workflow changes
+### 동기화 절차
 
-### Temporary Items → temp/
+1. **변경 전 확인** - Confluence와 로컬 양쪽 확인
+2. **사람이 의사결정** - 충돌 시 수동 머지
+3. **업로드/다운로드** - Claude MCP 도구 사용
 
-Save to `docs/temp/` when:
-- Work-in-progress documents
-- Analysis reports (before moving to final location)
-- Session-specific notes
-- Draft documents
+### Confluence 스페이스 매핑
+
+- **스페이스**: [기술] InfraOps개발팀 (CL23)
+- **URL**: https://ktcloud.atlassian.net/wiki/spaces/CL23/overview
+- **O11y 연동**: 지원프로젝트 > next-observability
+
+---
+
+## Claude 전용 문서 (Confluence X)
+
+`claude_` prefix 사용:
+
+| 폴더/파일 | 용도 |
+|----------|------|
+| `docs/claude_lessons_learned/` | 코딩 스타일, 디자인 패턴 |
+| `docs/claude_automations/` | 자동화 패턴 |
+| `docs/service/*/claude_temp/` | 프로젝트별 임시 작업 파일 |
+| `claude_*.md` 파일 | 구현 가이드, 분석 문서 |
+
+---
 
 ## 자동 저장 규칙
 
-Claude는 현재 작업 컨텍스트를 기반으로 자동 결정:
+Claude는 작업 컨텍스트 기반 자동 결정:
 
-### 프로젝트 작업 중일 때
-특정 프로젝트(luppiter_scheduler, luppiter_web 등) 작업 중이면 → **해당 프로젝트 폴더에 저장**
+| 작업 유형 | 저장 위치 |
+|----------|----------|
+| 프로젝트 설계/결정 | `docs/service/luppiter/<프로젝트>/decisions/` |
+| 트러블슈팅 완료 | `docs/service/luppiter/history/` |
+| 화면 명세 | `docs/service/luppiter/luppiter_web/screens/` |
+| 학습 내용 | `docs/claude_lessons_learned/<언어>/` |
+| 자동화 패턴 | `docs/claude_automations/` |
+| 팀 의사결정 | `docs/decisions/` |
+| 임시 작업 | `docs/service/luppiter/<프로젝트>/claude_temp/` |
 
-```
-docs/projects/<현재_프로젝트>/
-├── decisions/    # 설계 결정, 이슈 해결 기록
-├── guide/        # 프로젝트 특화 가이드
-└── ...
-```
-
-### 프로젝트 무관할 때만 → 상위 폴더
-- 팀 전체 정책/도구 → `docs/decisions/`
-- 언어별 공통 패턴 → `docs/guides/<언어>/`
-- 자동화 패턴 → `docs/automations/`
-
-### /wrap 시 자동 분류
-
-| 세션 컨텍스트 | 저장 위치 |
-|-------------|----------|
-| luppiter_scheduler 작업 | `docs/projects/luppiter_scheduler/decisions/` |
-| luppiter_web 작업 | `docs/projects/luppiter_web/decisions/` |
-| 팀 설정/도구 작업 | `docs/decisions/` |
-| 공통 학습 (패턴, 기법) | `docs/guides/<언어>/` |
+---
 
 ## Naming Conventions
 
-- Use kebab-case for filenames: `design-patterns.md`
-- No file numbers (e.g., ~~004-design-patterns.md~~)
-- Use descriptive names that indicate content
-- Include project name prefix for project-specific docs when needed
+- kebab-case: `design-patterns.md`
+- 번호 없음: ~~004-design-patterns.md~~
+- Claude 전용: `claude_` prefix 사용
+- 설명적 이름 사용
 
-## README Files
+---
 
-Each project folder should have a `README.md` with:
-- Project overview (name, language, role)
-- Document list with descriptions
-- Links to relevant common guides
+## Related Rules
+
+- [git-workflow.md](git-workflow.md) - Commit docs with code changes
+- [hooks.md](hooks.md) - Doc blocker hook configuration

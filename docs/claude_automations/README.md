@@ -10,6 +10,8 @@
 | 002 | Java Job 분석 | 배치 작업 클래스의 복잡도와 안전성 분석 | **HIGH** | 설계 완료 | 70% 시간 단축 |
 | 003 | 성능 이슈 문서 | 성능 이슈 분석 보고서 템플릿 | **MEDIUM** | 설계 완료 | 66% 시간 단축 |
 | 004 | SQL DDL 생성 | 테이블 DDL 자동 생성 및 마이그레이션 | **HIGH** | 설계 완료 | 90% 시간 단축 |
+| 005 | Playwright E2E 테스트 | 테스트 워크플로우 및 스크린샷/트레이스 관리 | **MEDIUM** | 설계 완료 | 75% 시간 단축 |
+| 006 | 규칙 파일 교차참조 | 루트 규칙 파일 간 자동 관계 매핑 및 동기화 | **MEDIUM** | 설계 완료 | 95% 시간 단축 |
 
 ## 세션 통계
 
@@ -112,6 +114,34 @@
 
 **예시**: `cmon_event_info`, `cmon_service_inventory_master` 테이블 정리
 
+### 005 - Playwright E2E 테스트 워크플로우
+**파일**: [`005-playwright-e2e-test-workflow.md`](./005-playwright-e2e-test-workflow.md)
+
+엔드투엔드 테스트 자동화 및 결과 관리:
+- 테스트 케이스 템플릿 생성
+- 스크린샷 자동 캡처
+- 트레이스 파일 관리
+- 비디오 녹화 자동화
+- 아티팩트 업로드/정리
+
+**예시**: luppiter_web 인증 흐름 E2E 테스트
+
+### 006 - 규칙 파일 교차참조 및 동기화
+**파일**: [`006-cross-reference-rules-automation.md`](./006-cross-reference-rules-automation.md)
+
+Claude Code 규칙 파일 간 자동 관계 매핑 및 동기화:
+- 규칙 파일 간 "Related Rules" 섹션 자동 생성
+- 키워드 기반 관계 매핑
+- 양방향 파일 동기화 (홈 ↔ 프로젝트)
+- 관계 맵 메타데이터 관리
+
+**패턴**:
+- 8개 규칙 파일에 동일 구조의 교차참조 섹션 추가
+- `related-rules-map.json` 메타데이터 생성
+- 자동 동기화 스크립트로 일관성 유지
+
+**예시**: `agents.md`, `testing.md`, `security.md` 간 관계 정의
+
 ## 활용 방법
 
 ### 슬래시 커맨드 사용 (향후)
@@ -157,7 +187,9 @@ docs/automations/
 ├── 001-sql-procedure-analysis.md
 ├── 002-java-job-analysis.md
 ├── 003-performance-issue-doc.md
-└── 004-sql-ddl-generator.md
+├── 004-sql-ddl-generator.md
+├── 005-playwright-e2e-test-workflow.md
+└── 006-cross-reference-rules-automation.md
 ```
 
 ## 기여 방법
@@ -177,5 +209,5 @@ docs/automations/
 
 ---
 
-**마지막 업데이트**: 2026-01-28
-**다음 검토 예정**: 2026-02-04 (일주일 후)
+**마지막 업데이트**: 2026-01-30
+**다음 검토 예정**: 2026-02-06 (일주일 후)

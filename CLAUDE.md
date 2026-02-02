@@ -7,15 +7,30 @@
 ```
 claude/
 ├── CLAUDE.md           # 이 파일 - Claude에게 주는 지침
-├── docs/               # 지식 관리
-│   ├── decisions/      # 의사결정 기록 (ADR)
-│   ├── guides/         # 공통 가이드 (언어별)
+├── docs/
+│   ├── service/                 # Confluence 동기화 대상 (사람용)
+│   │   └── luppiter/
+│   │       ├── architecture/    # → [LUPPITER] 서비스 아키텍처
+│   │       ├── features/        # → [LUPPITER] 주요 기능 명세서
+│   │       ├── history/         # → [LUPPITER] History
+│   │       ├── sop/             # → [LUPPITER] SOP
+│   │       ├── support-projects/  # → 05. 지원 프로젝트
+│   │       ├── luppiter_scheduler/
+│   │       │   ├── decisions/   # → [LUPPITER] History (설계 결정)
+│   │       │   └── claude_temp/ # Claude 전용 (Confluence X)
+│   │       ├── luppiter_web/
+│   │       │   ├── screens/     # → 주요 기능 명세서 > 화면 명세
+│   │       │   ├── api/         # → 주요 기능 명세서 > API
+│   │       │   └── claude_temp/ # Claude 전용 (Confluence X)
+│   │       └── luppiter_morning_report/
+│   │
+│   ├── claude_lessons_learned/  # Claude 학습 내용
 │   │   ├── java/       # Java 가이드
 │   │   ├── db/         # DB 가이드
 │   │   └── common/     # 공통 가이드
-│   ├── projects/       # 프로젝트별 문서
-│   ├── automations/    # 발견된 자동화 패턴
-│   └── temp/           # 임시 문서
+│   ├── claude_automations/      # 자동화 패턴
+│   ├── decisions/               # 팀 의사결정 (ADR)
+│   └── temp/                    # 임시 문서
 ├── workspace/          # 하위 프로젝트 (심볼릭 링크)
 └── .claude/
     ├── settings.local.json
@@ -73,7 +88,7 @@ KT Cloud 전체 Java 프로젝트에 적용되는 코드 스타일 가이드.
 | 접두사 | Enum: E, Interface: I |
 | 접미사 | Entity, Configuration, Aspect |
 
-> 상세: `docs/guides/java/kt-cloud-style.md`
+> 상세: `docs/claude_lessons_learned/java/kt-cloud-style.md`
 
 ### 디자인 패턴 (개념)
 
@@ -88,7 +103,7 @@ KT Cloud 전체 Java 프로젝트에 적용되는 코드 스타일 가이드.
 
 **Anti-Pattern 주의**: God Object, Magic Numbers, Copy-Paste
 
-> 상세: `docs/guides/java/design-patterns.md`
+> 상세: `docs/claude_lessons_learned/java/design-patterns.md`
 
 ### SRE 코딩 규칙 (개념)
 
@@ -114,7 +129,7 @@ KT Cloud 전체 Java 프로젝트에 적용되는 코드 스타일 가이드.
 - [ ] 재시도/서킷브레이커 적용
 - [ ] Health check 구현
 
-> 상세: `docs/guides/java/sre-coding.md`
+> 상세: `docs/claude_lessons_learned/java/sre-coding.md`
 
 ---
 
@@ -154,10 +169,11 @@ KT Cloud 전체 Java 프로젝트에 적용되는 코드 스타일 가이드.
 4. 예외/메인터넌스 타입 선택 팝업 개발
 
 **참고 문서**:
-- 설계: `docs/projects/luppiter_scheduler/o11y/01-design.md`
-- DDL: `docs/projects/luppiter_scheduler/o11y/02-ddl.sql`
-- ADR: `docs/projects/luppiter_scheduler/decisions/003-observability-integration-design.md`
-- 스키마: `docs/projects/luppiter_scheduler/observability-event-schema.md`
+- 설계: `docs/service/luppiter/support-projects/next-observability/01-design.md`
+- DDL: `docs/service/luppiter/support-projects/next-observability/02-ddl.sql`
+- ADR: `docs/service/luppiter/luppiter_scheduler/decisions/003-observability-integration-design.md`
+
+**Confluence**: [기술] InfraOps개발팀 > 05. 지원 프로젝트 > next-observability
 
 **일정**: 개발 2/13, 검증 2/27
 
@@ -189,17 +205,20 @@ KT Cloud 전체 Java 프로젝트에 적용되는 코드 스타일 가이드.
 - [ ] Phase 2: API 연동 + 통합 테이블 (Phase 1 완료 후)
 
 **참고 문서**:
-- **설계서**: `workspace/luppiter_scheduler/docs/event-combine-java-migration-design.md`
-- 세션 정리: `docs/decisions/004-luppiter-scheduler-event-combine-performance-session.md`
-- 상세 분석: `docs/temp/luppiter-scheduler-issue-report.md`
+- **설계서**: `docs/service/luppiter/luppiter_scheduler/event-combine-java-migration-design.md`
+- **구현 가이드**: `docs/service/luppiter/luppiter_scheduler/claude_event-combine-implementation-guide.md`
+- 세션 정리: `docs/service/luppiter/luppiter_scheduler/decisions/003-observability-integration-design.md`
 
 ---
 
 ## 작업 시 참고사항
 
 ### 문서 저장 (자동 분류)
-- **프로젝트 작업 중** → `docs/projects/<현재_프로젝트>/` 하위에 저장
-- **프로젝트 무관** → `docs/decisions/`, `docs/guides/`, `docs/automations/`
+- **Luppiter 프로젝트 문서** → `docs/service/luppiter/<프로젝트>/` (Confluence 동기화)
+- **Claude 전용 임시 파일** → `docs/service/luppiter/<프로젝트>/claude_temp/` (Confluence X)
+- **팀 전체 의사결정** → `docs/decisions/`
+- **학습 내용** → `docs/claude_lessons_learned/<언어>/`
+- **자동화 패턴** → `docs/claude_automations/`
 
 > 상세: `~/.claude/rules/doc-organization.md`
 

@@ -1,0 +1,52 @@
+# Observability 연동 설계
+
+## 개요
+
+NEXT Infra/Platform 이벤트 관제를 Luppiter로 통합하는 프로젝트 문서입니다.
+
+- **프로젝트**: luppiter_scheduler + luppiter_web
+- **일정**: 개발 2/13, 검증 2/27
+
+---
+
+## 문서 목록
+
+### 공통 설계
+
+| 문서 | 설명 |
+|------|------|
+| [01-design.md](01-design.md) | 전체 연동 설계서 |
+| [02-ddl.sql](02-ddl.sql) | DDL 스크립트 |
+| [03-event-workflow.puml](03-event-workflow.puml) | 이벤트 워크플로우 다이어그램 |
+| [04-functional-spec.md](04-functional-spec.md) | 기능별 상세 설계 |
+
+### Web 구현
+
+| 문서 | 설명 |
+|------|------|
+| [implementation-guide.md](implementation-guide.md) | Web 구현 가이드 (Controller, Service, JSP 패턴) |
+
+---
+
+## 영역 구분
+
+| 프로젝트 | 담당 영역 |
+|----------|----------|
+| **luppiter_scheduler** | Worker (EST030), 프로시저, 임시 테이블 |
+| **luppiter_web** | 서비스/플랫폼 등록, 관제 삭제, 예외/메인터넌스 UI |
+
+---
+
+## UI 변경 요약
+
+| 화면 | 변경 내용 |
+|------|----------|
+| 서비스/플랫폼 등록 | 신규 화면 (L1~L4 선택 → 호스트그룹 자동생성) |
+| 예외 등록 | 타입 선택 팝업 (Infra / Service / Platform) |
+| 메인터넌스 등록 | 타입 선택 팝업 (Infra / Service / Platform) |
+| 관제 삭제 | 탭 분리: Zabbix / Observability |
+| 이벤트 목록 | source 컬럼 추가, 하이퍼링크 |
+
+---
+
+**최종 업데이트**: 2026-01-30
