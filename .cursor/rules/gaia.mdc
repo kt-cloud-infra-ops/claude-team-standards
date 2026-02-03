@@ -1,0 +1,21 @@
+---
+description: Gaia 인프라 자동화 플랫폼 개발 가이드
+globs:
+  - "**/gaia/**"
+  - "**/gaia_*/**"
+  - "**/service/gaia/**"
+alwaysApply: false
+---
+
+# Gaia - 인프라 자동화 플랫폼
+
+인프라 프로비저닝 및 자동화 플랫폼
+
+## 핵심 문서
+
+| 문서 | 위치 |
+|------|------|
+| 아키텍처 | docs/service/gaia/architecture/ |
+| 기능 명세 | docs/service/gaia/features/ |
+| 운영 절차 | docs/service/gaia/sop/ |
+| 설계 결정 | docs/service/gaia/decisions/ |

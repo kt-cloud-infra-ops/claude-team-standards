@@ -1,0 +1,21 @@
+---
+description: InfraFE 인프라 프론트엔드 개발 가이드
+globs:
+  - "**/infrafe/**"
+  - "**/infrafe_*/**"
+  - "**/service/infrafe/**"
+alwaysApply: false
+---
+
+# InfraFE - 인프라 프론트엔드
+
+인프라 서비스 통합 프론트엔드
+
+## 핵심 문서
+
+| 문서 | 위치 |
+|------|------|
+| 아키텍처 | docs/service/infrafe/architecture/ |
+| 기능 명세 | docs/service/infrafe/features/ |
+| 운영 절차 | docs/service/infrafe/sop/ |
+| 설계 결정 | docs/service/infrafe/decisions/ |

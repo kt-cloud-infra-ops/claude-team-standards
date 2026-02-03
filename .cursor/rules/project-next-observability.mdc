@@ -1,0 +1,38 @@
+---
+description: NEXT Observability 연동 프로젝트 (Hera → Luppiter)
+globs:
+  - "**/next-observability/**"
+  - "**/support-projects/next-observability/**"
+alwaysApply: false
+---
+
+# NEXT Observability 연동 프로젝트
+
+Hera → Luppiter 이벤트 통합 프로젝트
+
+## 관련 서비스
+
+| 서비스 | 역할 |
+|--------|------|
+| Hera | 이벤트 발생/수집 |
+| Luppiter | 이벤트 수신/관제 |
+
+## 영역 구분
+
+| 프로젝트 | 담당 |
+|----------|------|
+| luppiter_scheduler | Worker (EST030), 프로시저, 임시 테이블 |
+| luppiter_web | 서비스/플랫폼 등록, 관제 삭제, 예외/메인터넌스 UI |
+
+## 문서
+
+| 문서 | 내용 |
+|------|------|
+| 01-design.md | 전체 설계 |
+| 02-ddl.sql | DB 스키마 |
+| 04-functional-spec.md | 기능 명세 |
+| implementation-guide.md | Web 구현 가이드 |
+
+## 프로젝트 완료 시
+
+이 rule 파일 삭제 후 관련 서비스 rule에 결과 반영

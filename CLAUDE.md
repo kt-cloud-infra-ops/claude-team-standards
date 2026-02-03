@@ -137,52 +137,6 @@ service/{서비스}/
 
 ---
 
-## 진행 중인 작업
-
-### Observability 연동 프로젝트 (2026-01-19 ~)
-
-**상태**: 설계 완료, DDL 완료, 개발 전
-
-**프로젝트**: luppiter_scheduler + luppiter_web
-
-**목표**: NEXT Infra/Platform 이벤트 관제를 Luppiter로 통합
-
-**다음 작업**:
-1. ObservabilityEventWorker 개발
-2. 프로시저 작성 (p_combine_event_obs)
-3. 서비스/플랫폼 등록 화면 개발
-
-**참고 문서**:
-- 설계: `docs/support-projects/next-observability/`
-- ADR: `docs/service/luppiter/projects/scheduler/decisions/003-observability-integration-design.md`
-
-**일정**: 개발 2/13, 검증 2/27
-
----
-
-### Luppiter Scheduler 성능 개선 (2026-01-28 ~)
-
-**상태**: 설계 완료, 개발 대기
-
-**프로젝트**: luppiter_scheduler
-
-**목표**: CombineEventServiceJob 성능 개선 (36s → 6~8s)
-
-**완료**:
-- [x] 임시 테이블 재생성 (2026-01-29)
-- [x] 프로시저 → Java 전환 설계 (2026-01-30)
-
-**다음 작업 (Phase 1)**:
-- [ ] AbstractEventCombineService 구현
-- [ ] ZabbixEventCombineService 구현
-- [ ] ZeniusEventCombineService 구현
-- [ ] Shadow Mode 병행 운영 검증
-
-**참고 문서**:
-- 설계서: `docs/service/luppiter/projects/scheduler/event-combine-java-migration.md`
-
----
-
 ## 문서 저장 규칙
 
 | 문서 유형 | 저장 위치 |

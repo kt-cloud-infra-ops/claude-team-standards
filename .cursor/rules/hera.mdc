@@ -1,0 +1,26 @@
+---
+description: Hera 모니터링 플랫폼 개발 가이드
+globs:
+  - "**/hera/**"
+  - "**/hera_*/**"
+  - "**/service/hera/**"
+alwaysApply: false
+---
+
+# Hera - 모니터링 플랫폼
+
+NEXT Infra/Platform 통합 모니터링 플랫폼
+
+## 핵심 문서
+
+| 문서 | 위치 |
+|------|------|
+| 아키텍처 | docs/service/hera/architecture/ |
+| 기능 명세 | docs/service/hera/features/ |
+| 운영 절차 | docs/service/hera/sop/ |
+| 설계 결정 | docs/service/hera/decisions/ |
+
+## 연동
+
+- Luppiter로 이벤트 전달 (Kafka)
+- Observability 데이터 수집/처리
