@@ -6,6 +6,11 @@ workspace/*
 workspace.json
 .claude/settings.local.json
 
+# 인증 정보 (절대 커밋 금지)
+*credentials*.json
+*-credentials.json
+.jira-credentials.json
+
 # IDE
 .idea/
 

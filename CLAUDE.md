@@ -44,6 +44,7 @@ claude/
 
 ```
 service/{서비스}/
+├── TASKS.md            # 서비스별 해야할 일 (담당자별 섹션)
 ├── architecture/       # 서비스 아키텍처
 ├── features/           # 주요 기능 명세
 ├── sop/                # 운영 절차서
@@ -75,6 +76,8 @@ service/{서비스}/
 
 | 커맨드 | 설명 |
 |--------|------|
+| `/init` | 초기 환경 설정 (Git, Jira 인증) |
+| `/tasks [서비스\|jira\|local]` | Jira + 로컬 TASKS.md 조회 |
 | `/wrap` | 세션 마무리 (5가지 병렬 분석) |
 | `/status` | 프로젝트 현황 확인 |
 | `/session-insights` | 세션 데이터 분석 대시보드 |

@@ -217,6 +217,35 @@ done
 
 ---
 
+## ⚠️ 이슈 조회 시 점검 (필수)
+
+**Jira 티켓 조회할 때 항상 아래 항목 점검:**
+
+| 항목 | 점검 내용 | 조치 |
+|------|----------|------|
+| A.C. 형식 | 체크박스(taskList) 형식인가? | 아니면 체크박스로 변환 |
+| A.C. 내용 | 구체적인 완료 기준이 있는가? | 부족하면 보완 제안 |
+| Description | 배경/목적/설계가 있는가? | 없으면 추가 |
+| Start date | 시작일이 설정되어 있는가? | 없으면 설정 |
+| Due date | 기한이 설정되어 있는가? | 없으면 설정 |
+| Epic Link | Epic에 연결되어 있는가? | 없으면 연결 |
+
+### A.C. 체크박스 변환 예시
+
+```json
+// Before (단순 텍스트)
+"content": [{"type": "paragraph", "content": [{"type": "text", "text": "분석 완료"}]}]
+
+// After (체크박스)
+"content": [
+  {"type": "taskList", "attrs": {"localId": "ac-1"}, "content": [
+    {"type": "taskItem", "attrs": {"localId": "t-1", "state": "TODO"}, "content": [{"type": "text", "text": "분석 완료"}]}
+  ]}
+]
+```
+
+---
+
 ## ⚠️ 이슈 생성 (필수)
 
 > **핵심: 부족하면 물어보고, 설계 없으면 캐물어서 작성**
@@ -331,6 +360,60 @@ curl -s -X GET ... | jq '.. | select(.localId?) | {localId, state}'
 ```
 
 → 해당 이슈 유형/화면에서 사용 불가능한 필드. `editmeta` API로 사용 가능한 필드 확인 필요.
+
+---
+
+## Confluence REST API
+
+### 페이지 생성 시 주의사항
+
+**⚠️ 경로(부모 페이지)는 반드시 사용자에게 확인 후 진행**
+
+```
+1. 적절한 부모 페이지 후보 검색
+2. 사용자에게 경로 추천 및 확인 요청
+3. 승인 후 페이지 생성
+```
+
+### 페이지 업데이트
+
+```bash
+# 현재 버전 확인
+curl -s -X GET \
+  -H "Authorization: Basic $AUTH" \
+  "https://ktcloud.atlassian.net/wiki/rest/api/content/{pageId}?expand=version" | jq '.version.number'
+
+# 페이지 업데이트 (버전 +1 필수)
+curl -s -X PUT \
+  -H "Authorization: Basic $AUTH" \
+  -H "Content-Type: application/json" \
+  -d @content.json \
+  "https://ktcloud.atlassian.net/wiki/rest/api/content/{pageId}"
+```
+
+### JSON 형식
+
+```json
+{
+  "version": {"number": 현재버전+1},
+  "title": "페이지 제목",
+  "type": "page",
+  "body": {
+    "storage": {
+      "value": "<p>HTML/Storage Format 내용</p>",
+      "representation": "storage"
+    }
+  }
+}
+```
+
+### 문서 관리 규칙
+
+| 규칙 | 설명 |
+|------|------|
+| Confluence 문서 | 로컬에 **링크만** 유지 |
+| 로컬 전용 문서 | `claude_` prefix 사용 |
+| MCP 사용 안함 | REST API 직접 호출 (1000자 제한 없음) |
 
 ---
 
