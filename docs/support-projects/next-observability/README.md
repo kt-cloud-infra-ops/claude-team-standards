@@ -19,12 +19,18 @@ NEXT Infra/Platform 이벤트 관제를 Luppiter로 통합하는 프로젝트 �
 | [02-ddl.sql](02-ddl.sql) | DDL 스크립트 |
 | [03-event-workflow.puml](03-event-workflow.puml) | 이벤트 워크플로우 다이어그램 |
 | [04-functional-spec.md](04-functional-spec.md) | 기능별 상세 설계 |
+| [05-api-spec-maintenance.md](05-api-spec-maintenance.md) | 메인터넌스 API 스펙 협의 |
+| [jira-issues.md](jira-issues.md) | Jira 이슈 목록 및 멀티리전 영향도 |
 
-### Web 구현
+### 구현 가이드
 
 | 문서 | 설명 |
 |------|------|
-| [implementation-guide.md](implementation-guide.md) | Web 구현 가이드 (Controller, Service, JSP 패턴) |
+| [implementation-guide.md](implementation-guide.md) | Scheduler + Web 통합 구현 가이드 |
+
+**구현 가이드 목차:**
+- Part 1: Scheduler (ObservabilityEventWorker, 프로시저)
+- Part 2: Web (서비스등록, 삭제, 예외, 메인터넌스)
 
 ---
 
@@ -49,4 +55,4 @@ NEXT Infra/Platform 이벤트 관제를 Luppiter로 통합하는 프로젝트 �
 
 ---
 
-**최종 업데이트**: 2026-01-30
+**최종 업데이트**: 2026-02-03

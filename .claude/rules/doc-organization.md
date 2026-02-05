@@ -35,7 +35,6 @@ docs/
 │       ├── features/        # → [LUPPITER] 주요 기능 명세서
 │       ├── history/         # → [LUPPITER] History
 │       ├── sop/             # → [LUPPITER] SOP
-│       ├── support-projects/  # → 05. 지원 프로젝트
 │       ├── luppiter_scheduler/
 │       │   ├── decisions/   # → [LUPPITER] History (설계 결정)
 │       │   └── claude_temp/ # Claude 전용 (Confluence X)
@@ -44,6 +43,9 @@ docs/
 │       │   ├── api/         # → [LUPPITER] 주요 기능 명세서 > API
 │       │   └── claude_temp/ # Claude 전용 (Confluence X)
 │       └── luppiter_morning_report/
+│
+├── support-projects/        # 지원 프로젝트 (서비스 횡단)
+│   └── next-observability/  # → 05. 지원 프로젝트
 │
 ├── claude_lessons_learned/  # Claude 학습 내용
 │   ├── java/
@@ -69,7 +71,6 @@ docs/
 | `features/` | [LUPPITER] 주요 기능 명세서 | API, 주요 기능 설명 |
 | `history/` | [LUPPITER] History | 트러블슈팅, 장애 대응 |
 | `sop/` | [LUPPITER] SOP | 운영 절차 |
-| `support-projects/` | 05. 지원 프로젝트 | O11y 연동 등 |
 | `luppiter_web/screens/` | [LUPPITER] 주요 기능 명세서 > 화면 명세 | 화면 기능 명세 |
 | `luppiter_web/api/` | [LUPPITER] 주요 기능 명세서 > API | API 명세 |
 
@@ -79,11 +80,16 @@ docs/
 2. **사람이 의사결정** - 충돌 시 수동 머지
 3. **업로드/다운로드** - Claude MCP 도구 사용
 
+### 동기화 대상 (`docs/support-projects/`)
+
+| 로컬 폴더 | Confluence 위치 | 설명 |
+|----------|----------------|------|
+| `next-observability/` | 05. 지원 프로젝트 | O11y 연동 |
+
 ### Confluence 스페이스 매핑
 
 - **스페이스**: [기술] InfraOps개발팀 (CL23)
 - **URL**: https://ktcloud.atlassian.net/wiki/spaces/CL23/overview
-- **O11y 연동**: 지원프로젝트 > next-observability
 
 ---
 

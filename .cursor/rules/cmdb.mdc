@@ -1,0 +1,26 @@
+---
+description: CMDB 구성관리 데이터베이스 개발 가이드
+globs:
+  - "**/cmdb/**"
+  - "**/cmdb_*/**"
+  - "**/service/cmdb/**"
+alwaysApply: false
+---
+
+# CMDB - Configuration Management Database
+
+IT 자산 및 구성 항목 관리 시스템
+
+## 핵심 문서
+
+| 문서 | 위치 |
+|------|------|
+| 아키텍처 | docs/service/cmdb/architecture/ |
+| 기능 명세 | docs/service/cmdb/features/ |
+| 운영 절차 | docs/service/cmdb/sop/ |
+| 설계 결정 | docs/service/cmdb/decisions/ |
+
+## 연동
+
+- Luppiter (자산 정보 조회)
+- 기타 인프라 서비스 (CI 정보 제공)

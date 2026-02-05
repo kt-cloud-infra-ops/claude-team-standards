@@ -1,0 +1,66 @@
+{
+  "blocks": [
+    {
+      "type": "header",
+      "text": {
+        "type": "plain_text",
+        "text": "⏸️ 이벤트예외 [예외등록] [EXC-728] XenServer host down"
+      }
+    },
+    {
+      "type": "section",
+      "text": {
+        "type": "mrkdwn",
+        "text": "*[이벤트 예외][XS1001] XenServer host down*"
+      }
+    },
+    {
+      "type": "divider"
+    },
+    {
+      "type": "section",
+      "text": {
+        "type": "mrkdwn",
+        "text": "• *기간:* 2025-01-12 00:00 ~ 2025-02-10 23:59\n• *등록:* 홍길동 (Cloud통합관제팀)"
+      }
+    },
+    {
+      "type": "section",
+      "text": {
+        "type": "mrkdwn",
+        "text": "*대상:*"
+      }
+    },
+    {
+      "type": "rich_text",
+      "elements": [
+        {
+          "type": "rich_text_list",
+          "style": "bullet",
+          "elements": [
+            {
+              "type": "rich_text_section",
+              "elements": [{ "type": "text", "text": "host-01 (10.1.2.3)" }]
+            },
+            {
+              "type": "rich_text_section",
+              "elements": [{ "type": "text", "text": "host-02 (10.1.2.4)" }]
+            },
+            {
+              "type": "rich_text_section",
+              "elements": [{ "type": "text", "text": "host-03 (10.1.2.5)" }]
+            },
+            {
+              "type": "rich_text_section",
+              "elements": [{ "type": "text", "text": "host-04 (10.1.2.6)" }]
+            },
+            {
+              "type": "rich_text_section",
+              "elements": [{ "type": "text", "text": "host-05 (10.1.2.7)" }]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

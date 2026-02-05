@@ -1,0 +1,74 @@
+{
+  "blocks": [
+    {
+      "type": "header",
+      "text": {
+        "type": "plain_text",
+        "text": "🔧 메인터넌스 [수정] [T25081900004] Zabbix 크로스 관제 이관 작업"
+      }
+    },
+    {
+      "type": "section",
+      "text": {
+        "type": "mrkdwn",
+        "text": "• *기간:* 2025-08-19 18:00 ~ 2026-08-19 17:59\n• *등록:* 유피테르_공용계정 (Cloud통합관제팀)"
+      }
+    },
+    {
+      "type": "section",
+      "text": {
+        "type": "mrkdwn",
+        "text": "*호스트:*"
+      }
+    },
+    {
+      "type": "rich_text",
+      "elements": [
+        {
+          "type": "rich_text_list",
+          "style": "bullet",
+          "elements": [
+            {
+              "type": "rich_text_section",
+              "elements": [{ "type": "text", "text": "[Cloud통합관제/ECLS-M1-COREMGMT] m1-jpt-prd-zab-d01 (10.2.14.141)" }]
+            },
+            {
+              "type": "rich_text_section",
+              "elements": [{ "type": "text", "text": "[Cloud통합관제/ECLS-M1-COREMGMT] m1-jpt-prd-zab-d02 (10.2.14.142)" }]
+            },
+            {
+              "type": "rich_text_section",
+              "elements": [{ "type": "text", "text": "[Cloud통합관제/ECLS-M1-COREMGMT] m1-jpt-prd-zab-d01_d02_VIP (10.2.14.141)" }]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "section",
+      "text": {
+        "type": "mrkdwn",
+        "text": "*이벤트:*"
+      }
+    },
+    {
+      "type": "rich_text",
+      "elements": [
+        {
+          "type": "rich_text_list",
+          "style": "bullet",
+          "elements": [
+            {
+              "type": "rich_text_section",
+              "elements": [{ "type": "text", "text": "[DB1213] Session Connect Warning (96.62%)" }]
+            },
+            {
+              "type": "rich_text_section",
+              "elements": [{ "type": "text", "text": "[DB1211] Session Connect 증가 (96.62%)" }]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

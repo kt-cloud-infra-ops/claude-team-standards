@@ -9,6 +9,7 @@
 | 백업 원본 버전 | PostgreSQL 13.5 |
 | 백업 방식 | pg_dump (스키마/데이터/메타 분리) |
 | 작성일 | 2026-01-30 |
+| 최종 수정일 | 2026-02-04 |
 
 ---
 
@@ -180,9 +181,11 @@ WHERE table_schema = 'public';"
 # agent_message 관련 내용 제외한 데이터 파일 생성
 grep -v "agent_message" /tmp/archive/backup_luppiter_data_20260129.dump > /tmp/data_no_agent.dump
 
-# 데이터 복구 (시간 소요: 약 10분)
+# 데이터 복구 (시간 소요: 약 50분, 1.3GB 기준)
 psql -h 192.168.128.11 -p 5432 -U luppiter -d ktcmon -f /tmp/data_no_agent.dump
 ```
+
+**주의:** 대용량 복구 시 일부 테이블 데이터가 누락될 수 있음. Step 17에서 반드시 검증 필요.
 
 ---
 
@@ -196,11 +199,22 @@ psql -h 192.168.128.11 -p 5432 -U luppiter -d ktcmon -c "TRUNCATE TABLE agent_me
 
 ## Step 12. DB 사용자 생성
 
+**주의:** 이미 존재하는 사용자면 에러 발생하므로 IF NOT EXISTS 패턴 사용
+
 ```bash
 psql -h 192.168.128.11 -p 5432 -U luppiter -d ktcmon -c "
-CREATE ROLE ktcmon WITH LOGIN PASSWORD 'zmffkdnem3#';
-CREATE ROLE luppiter_user WITH LOGIN PASSWORD 'zmffkdnem3#';
-CREATE ROLE luppiter_admin WITH LOGIN PASSWORD 'zmffkdnem3#';
+DO \$\$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'ktcmon') THEN
+        CREATE ROLE ktcmon WITH LOGIN PASSWORD 'zmffkdnem3#';
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'luppiter_user') THEN
+        CREATE ROLE luppiter_user WITH LOGIN PASSWORD 'zmffkdnem3#';
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'luppiter_admin') THEN
+        CREATE ROLE luppiter_admin WITH LOGIN PASSWORD 'zmffkdnem3#';
+    END IF;
+END \$\$;
 "
 ```
 
@@ -291,27 +305,33 @@ ORDER BY 1;
 
 **예상 결과:**
 ```
-       tbl       | count
------------------+--------
- agent_message   |      0
- c00_common_code |   1926
- cmon_event_info | 474690
- cmon_group      |     40
- cmon_group_layer|    694
- cmon_group_user |    694
- cmon_user       |    251
- inventory_master|  16371
+       tbl        | count
+------------------+--------
+ agent_message    |      0
+ c00_common_code  |   1926
+ cmon_event_info  | 474690
+ cmon_group       |     40
+ cmon_group_layer |   2517
+ cmon_group_user  |    694
+ cmon_user        |    251
+ inventory_master |  16371
 ```
+
+**주의:** inventory_master가 0건이면 Step 17 수행 필수
 
 ---
 
-## Step 17. 누락 데이터 추가 복구 (필요시)
+## Step 17. 누락 데이터 추가 복구 (필수 확인)
 
-**주의:** 복구 중 중단되면 일부 테이블 데이터가 누락될 수 있음.
+**중요:** 대용량 데이터 복구 시 특정 테이블 데이터가 누락될 수 있음. Step 16에서 inventory_master 등이 0건이면 반드시 수행.
 
 ```bash
-# 특정 테이블 INSERT 문만 추출하여 복구
+# inventory_master 데이터 복구 (누락 시)
 grep "INSERT INTO public.inventory_master " /tmp/archive/backup_luppiter_data_20260129.dump | \
+psql -h 192.168.128.11 -p 5432 -U luppiter -d ktcmon
+
+# 다른 테이블 누락 시 동일 패턴으로 복구
+grep "INSERT INTO public.테이블명 " /tmp/archive/backup_luppiter_data_20260129.dump | \
 psql -h 192.168.128.11 -p 5432 -U luppiter -d ktcmon
 ```
 
@@ -382,4 +402,4 @@ psql -h 192.168.128.11 -p 5432 -U luppiter -d ktcmon
 
 ---
 
-**최종 업데이트**: 2026-01-30
+**최종 업데이트**: 2026-02-04
