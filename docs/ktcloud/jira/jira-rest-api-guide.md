@@ -21,15 +21,35 @@ AUTH=$(echo -n 'email@kt.com:API_TOKEN' | base64)
 | 기능 | MCP 도구 | REST API |
 |------|----------|----------|
 | 이슈 조회 | `read_jira_issue` | GET /rest/api/3/issue/{key} |
+| **이슈 검색** | ❌ 에러 (deprecated) | GET /rest/api/3/search/jql |
 | 이슈 생성 | `create_jira_issue` | POST /rest/api/3/issue |
 | **이슈 수정** | ❌ 없음 | PUT /rest/api/3/issue/{key} |
 | **상태 변경** | ❌ 없음 | POST /rest/api/3/issue/{key}/transitions |
 | 코멘트 추가 | `add_jira_comment` | POST /rest/api/3/issue/{key}/comment |
 | **코멘트 삭제** | ❌ 없음 | DELETE /rest/api/3/issue/{key}/comment/{id} |
 
+> **Note**: MCP `search_jira_issues`는 deprecated API(`/rest/api/3/search`) 사용으로 에러 발생.
+> 2025년 8월부터 Atlassian이 `/rest/api/3/search/jql`로 마이그레이션 강제.
+
 ---
 
 ## 자주 사용하는 API
+
+### 0. 이슈 검색 (JQL)
+
+```bash
+# 담당자 미완료 이슈 조회
+curl -s -X GET \
+  -H "Authorization: Basic $AUTH" \
+  -H "Content-Type: application/json" \
+  "https://ktcloud.atlassian.net/rest/api/3/search/jql?jql=assignee=currentUser()%20AND%20status%20not%20in%20(Done,Cancel)%20ORDER%20BY%20updated%20DESC&maxResults=30&fields=summary,status,priority,issuetype,updated,project" \
+  | jq -r '.issues[] | "\(.key)\t\(.fields.status.name)\t\(.fields.summary)"'
+
+# 프로젝트별 조회
+curl -s -X GET \
+  -H "Authorization: Basic $AUTH" \
+  "https://ktcloud.atlassian.net/rest/api/3/search/jql?jql=project=TECHIOPS26%20AND%20assignee=currentUser()&maxResults=20&fields=summary,status"
+```
 
 ### 1. 이슈 수정
 

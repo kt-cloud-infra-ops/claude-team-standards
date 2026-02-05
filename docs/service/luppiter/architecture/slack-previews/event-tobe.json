@@ -1,0 +1,146 @@
+{
+  "blocks": [
+    {
+      "type": "context",
+      "elements": [{ "type": "mrkdwn", "text": "*예시 1: 인프라 이벤트*" }]
+    },
+    {
+      "type": "header",
+      "text": {
+        "type": "plain_text",
+        "text": "🚨 이벤트 [신규] [Fatal] [HW6213] PATH 상태 비 정상"
+      }
+    },
+    {
+      "type": "rich_text",
+      "elements": [
+        {
+          "type": "rich_text_list",
+          "style": "bullet",
+          "elements": [
+            {
+              "type": "rich_text_section",
+              "elements": [
+                { "type": "text", "text": "대상: ", "style": { "bold": true } },
+                { "type": "text", "text": "[KT-Legacy인프라/LEG-CA-PRD] HITACHI_AMS2500_10.4.34.19_05R1008_87013424_2 (K911760600010046)" }
+              ]
+            },
+            {
+              "type": "rich_text_section",
+              "elements": [
+                { "type": "text", "text": "발생: ", "style": { "bold": true } },
+                { "type": "text", "text": "2025-11-17 03:58:48" }
+              ]
+            },
+            {
+              "type": "rich_text_section",
+              "elements": [
+                { "type": "text", "text": "해소: ", "style": { "bold": true } },
+                { "type": "text", "text": "-" }
+              ]
+            },
+            {
+              "type": "rich_text_section",
+              "elements": [
+                { "type": "text", "text": "IP (수집, MGMT, IPMI): ", "style": { "bold": true } },
+                { "type": "text", "text": "10.4.34.19, -, 10.4.34.19" }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "divider"
+    },
+    {
+      "type": "context",
+      "elements": [{ "type": "mrkdwn", "text": "*예시 2: 서비스 이벤트*" }]
+    },
+    {
+      "type": "header",
+      "text": {
+        "type": "plain_text",
+        "text": "🚨 이벤트 [신규] [Critical] [SVC1001] API Gateway Latency High"
+      }
+    },
+    {
+      "type": "rich_text",
+      "elements": [
+        {
+          "type": "rich_text_list",
+          "style": "bullet",
+          "elements": [
+            {
+              "type": "rich_text_section",
+              "elements": [
+                { "type": "text", "text": "대상: ", "style": { "bold": true } },
+                { "type": "text", "text": "[NEXT-apigw/DX-G-GB]" }
+              ]
+            },
+            {
+              "type": "rich_text_section",
+              "elements": [
+                { "type": "text", "text": "발생: ", "style": { "bold": true } },
+                { "type": "text", "text": "2025-11-17 10:15:32" }
+              ]
+            },
+            {
+              "type": "rich_text_section",
+              "elements": [
+                { "type": "text", "text": "해소: ", "style": { "bold": true } },
+                { "type": "text", "text": "-" }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "divider"
+    },
+    {
+      "type": "context",
+      "elements": [{ "type": "mrkdwn", "text": "*예시 3: 플랫폼 이벤트*" }]
+    },
+    {
+      "type": "header",
+      "text": {
+        "type": "plain_text",
+        "text": "🚨 이벤트 [신규] [Critical] [K8S2001] Pod CrashLoopBackOff"
+      }
+    },
+    {
+      "type": "rich_text",
+      "elements": [
+        {
+          "type": "rich_text_list",
+          "style": "bullet",
+          "elements": [
+            {
+              "type": "rich_text_section",
+              "elements": [
+                { "type": "text", "text": "대상: ", "style": { "bold": true } },
+                { "type": "text", "text": "[NEXT-K8S/DX-G-GB]" }
+              ]
+            },
+            {
+              "type": "rich_text_section",
+              "elements": [
+                { "type": "text", "text": "발생: ", "style": { "bold": true } },
+                { "type": "text", "text": "2025-11-17 11:23:45" }
+              ]
+            },
+            {
+              "type": "rich_text_section",
+              "elements": [
+                { "type": "text", "text": "해소: ", "style": { "bold": true } },
+                { "type": "text", "text": "-" }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,51 +1,507 @@
 # Observability 연동 - 구현 가이드
 
 > 작성일: 2026-01-20
-> 기준: luppiter_web 기존 패턴 준수
+> 수정일: 2026-02-03
+> 기준: luppiter_scheduler, luppiter_web 기존 패턴 준수
 
 ---
 
 ## 목차
 
-1. [프로젝트 구조](#1-프로젝트-구조)
-2. [코딩 패턴](#2-코딩-패턴)
-3. [기능별 구현 상세](#3-기능별-구현-상세)
-   - 3.1 서비스/플랫폼 등록
-   - 3.2 관제 대상 삭제 (탭 분리)
-   - 3.3 예외 관리 (타입 선택 팝업)
-   - 3.4 메인터넌스 관리 (타입 선택 팝업)
-4. [API 엔드포인트 목록](#4-api-엔드포인트-목록)
-5. [체크리스트](#5-체크리스트)
+**Part 1. Scheduler (luppiter_scheduler)**
+1. [Scheduler 개요](#1-scheduler-개요)
+2. [ObservabilityEventWorker 구현](#2-observabilityeventworker-구현)
+3. [프로시저 구현](#3-프로시저-구현)
+
+**Part 2. Web (luppiter_web)**
+4. [프로젝트 구조](#4-프로젝트-구조)
+5. [코딩 패턴](#5-코딩-패턴)
+6. [기능별 구현 상세](#6-기능별-구현-상세)
+   - 6.1 서비스/플랫폼 등록
+   - 6.2 관제 대상 삭제 (탭 분리)
+   - 6.3 예외 관리 (타입 선택 팝업)
+   - 6.4 메인터넌스 관리 (타입 선택 팝업)
+7. [API 엔드포인트 목록](#7-api-엔드포인트-목록)
+8. [체크리스트](#8-체크리스트)
 
 ---
 
-## 1. 프로젝트 구조
+# Part 1. Scheduler (luppiter_scheduler)
 
-### 1.1 신규 파일 구조
+## 1. Scheduler 개요
+
+### 1.1 처리 흐름
+
+```
+[Observability DB (GB)] → [ObservabilityEventWorker] → [x01_if_event_obs] → [프로시저] → [cmon_event_info]
+                               (EST030-GB)                  (임시 테이블)                      (본 테이블)
+
+[Observability DB (SE)] → [ObservabilityEventWorker] → [x01_if_event_obs] → [프로시저] → [cmon_event_info]
+                               (EST030-SE)                  (임시 테이블)                      (본 테이블)
+```
+
+> **Note**: 연동 DB가 리전별로 분리됨 (현재: GB, SE). 리전 확장 시 Worker 추가 등록.
+
+### 1.2 참고 파일
+
+| 파일 | 용도 |
+|------|------|
+| `EventJobWorker.java` | 추상 클래스 (상속) |
+| `ZeniusEventWorker.java` | DB 연동 패턴 참고 (동일 구조) |
+| `EventWorkerFactory.java` | EST030 등록 필요 |
+
+---
+
+## 2. ObservabilityEventWorker 구현
+
+### 2.1 신규 파일
+
+```
+src/main/java/com/ktc/luppiter/batch/task/builder/
+└── ObservabilityEventWorker.java    # 신규
+
+src/main/java/com/ktc/luppiter/batch/mapper/
+└── IFEventMapper.java               # 쿼리 추가
+
+src/main/resources/mybatis/mapper/
+└── EventBatchMapper.xml             # INSERT 쿼리 추가
+```
+
+### 2.2 EventWorkerFactory 수정
+
+```java
+public enum EventWorkerFactory {
+
+    EST010("EST010", () -> new ZabbixEventWorker("EST010")),
+    EST011("EST011", () -> new ZabbixEventWorker("EST011")),
+    EST020("EST020", () -> new ZeniusEventWorker("EST020")),
+    EST030("EST030", () -> new ObservabilityEventWorker("EST030")),  // GB (경북)
+    EST031("EST031", () -> new ObservabilityEventWorker("EST031"));  // SE (서울)
+
+    // ... 이하 동일
+}
+```
+
+### 2.3 C01_BATCH_EVENT 등록 (리전별)
+
+> **리전 확장 시**: 새 리전 추가 시 아래 테이블에 행 추가 + EventWorkerFactory에 enum 추가
+
+| system_code | batch_bean | 리전 | DB URL | 비고 |
+|-------------|------------|------|--------|------|
+| OBS001 | EST030 | GB (경북) | jdbc:postgresql://{gb-host}:{port}/{db} | |
+| OBS002 | EST031 | SE (서울) | jdbc:postgresql://{se-host}:{port}/{db} | |
+| OBS00N | EST03N | {신규리전} | jdbc:postgresql://{new-host}:{port}/{db} | 확장 시 |
+
+### 2.3 ObservabilityEventWorker 클래스
+
+```java
+package com.ktc.luppiter.batch.task.builder;
+
+import com.ktc.luppiter.batch.common.ErrorCode;
+import com.ktc.luppiter.batch.mapper.IFEventMapper;
+import com.ktc.luppiter.utils.ResultSetUtils;
+import com.ktc.luppiter.utils.TaskDBConnection;
+import com.zaxxer.hikari.HikariDataSource;
+import lombok.extern.slf4j.Slf4j;
+
+import java.sql.*;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
+
+@Slf4j
+public class ObservabilityEventWorker extends EventJobWorker {
+
+    private HikariDataSource dataSource = null;
+    private Connection conn = null;
+    private PreparedStatement pstmt = null;
+
+    public ObservabilityEventWorker() {}
+
+    public ObservabilityEventWorker(String eventSyncType) {
+        super.setSyncTypeCode(eventSyncType);
+    }
+
+    @Override
+    public void doProcess() throws Exception {
+        log.info("[{}] {}", this.getSystemCode(), this.getSyncTypeCode());
+
+        try {
+            // 1. 마지막 연동 seq 조회
+            Map<String, String> params = new HashMap<>();
+            params.put("systemCode", getSystemCode());
+            params.put("batchBean", getJobName());
+
+            Map<String, String> batchEventInfo = eventBatchMapper.selectBatchEventInfo(params);
+
+            long lastSeq = 0;
+            if (batchEventInfo != null && batchEventInfo.get("if_idx") != null) {
+                lastSeq = Long.parseLong(batchEventInfo.get("if_idx"));
+            }
+
+            // 2. Observability DB 연결
+            log.debug("[{}] Observability DB 연결", getSystemCode());
+            dataSource = TaskDBConnection.getDataSource(
+                getSystemCode(),
+                getDbInfo().getDriver(),
+                getDbInfo().getUrl(),
+                getDbInfo().getUserName(),
+                getDbInfo().getPassword()
+            );
+            conn = Objects.requireNonNull(dataSource).getConnection();
+
+            // 3. 이벤트 조회 (seq 기반 증분)
+            String query = IFEventMapper.observabilityEvent;
+            pstmt = conn.prepareStatement(query,
+                ResultSet.TYPE_SCROLL_SENSITIVE,
+                ResultSet.CONCUR_UPDATABLE);
+            pstmt.setLong(1, lastSeq);
+            pstmt.setQueryTimeout(30);
+
+            ResultSet rs = pstmt.executeQuery();
+
+            // 4. 결과 처리
+            int transactionCount = 1000;
+            List<List<Map<String, Object>>> tempDataList =
+                ResultSetUtils.convertResultToListMap(rs, transactionCount);
+
+            if (!tempDataList.isEmpty()) {
+                processEvents(tempDataList);
+            } else {
+                log.debug("[{}] 가져올 원본 데이터가 없음", getSystemCode());
+                updateBatchEventTime();
+            }
+
+        } catch (Exception e) {
+            throw e;
+        } finally {
+            closeResources();
+        }
+    }
+
+    private void processEvents(List<List<Map<String, Object>>> tempDataList) {
+        // 상세 구현은 2.4 참고
+    }
+
+    private void updateBatchEventTime() {
+        Map<String, String> param = new HashMap<>();
+        param.put("systemCode", getSystemCode());
+        param.put("batchBean", getSystemCode());
+        param.put("if_dt", "now()");
+        batchSchedulerMapper.updateBatchEventInfo(param);
+    }
+
+    private void closeResources() {
+        try {
+            if (pstmt != null) pstmt.close();
+            if (conn != null) conn.close();
+            if (dataSource != null) dataSource.close();
+        } catch (SQLException ignore) {}
+    }
+}
+```
+
+### 2.4 processEvents() 상세
+
+```java
+private void processEvents(List<List<Map<String, Object>>> tempDataList) {
+    log.debug("[{}] 이벤트 데이터 연동 작업 시작", getSystemCode());
+
+    List<Integer> commitCountList = new ArrayList<>();
+    List<Long> lastSeqList = new ArrayList<>();
+
+    Map<String, String> updateParameter = new HashMap<>();
+    updateParameter.put("systemCode", getSystemCode());
+    updateParameter.put("batchBean", getSystemCode());
+
+    Map<String, Object> insertParameter = new HashMap<>();
+    insertParameter.put("systemCode", getSystemCode());
+
+    tempDataList.forEach(list -> {
+        try {
+            // 데이터 가공
+            list.forEach(data -> {
+                // event_level 변환 (critical → 2, fatal → 4)
+                String level = String.valueOf(data.get("event_level"));
+                int eventLevel = "critical".equalsIgnoreCase(level) ? 2 : 4;
+                data.put("event_level_code", eventLevel);
+            });
+
+            conn.setAutoCommit(false);
+
+            // x01_if_event_obs에 INSERT
+            insertParameter.put("dataList", list);
+            eventBatchMapper.insertTempEventObs(insertParameter);
+
+            // 마지막 seq 저장
+            Optional<Long> maxSeq = list.stream()
+                .map(o -> Long.parseLong(o.get("seq").toString()))
+                .max(Long::compareTo);
+            maxSeq.ifPresent(lastSeqList::add);
+
+            conn.commit();
+            commitCountList.add(list.size());
+
+        } catch (SQLException e) {
+            try { conn.rollback(); } catch (SQLException re) {}
+            log.error("[{}] INSERT 실패: {}", getSystemCode(), e.getMessage());
+        } finally {
+            try { conn.setAutoCommit(true); } catch (SQLException ignore) {}
+        }
+    });
+
+    // 마지막 seq 업데이트
+    if (!lastSeqList.isEmpty()) {
+        long maxSeq = lastSeqList.stream().max(Long::compareTo).get();
+        int totalCount = commitCountList.stream().mapToInt(i -> i).sum();
+
+        log.debug("[{}] 연동 완료 - 건수: {}, 마지막 seq: {}", getSystemCode(), totalCount, maxSeq);
+
+        updateParameter.put("if_idx", String.valueOf(maxSeq));
+        updateParameter.put("if_dt", "now()");
+        batchSchedulerMapper.updateBatchEventInfo(updateParameter);
+    }
+
+    log.debug("[{}] 이벤트 데이터 연동 작업 종료", getSystemCode());
+}
+```
+
+### 2.5 SQL 쿼리
+
+#### IFEventMapper.java에 추가
+
+```java
+public static String observabilityEvent = """
+    SELECT
+        seq,
+        event_id,
+        type,
+        status,
+        region,
+        zone,
+        target_ip,
+        target_name,
+        target_contents,
+        event_level,
+        trigger_id,
+        stdnm,
+        occu_time,
+        r_time,
+        source,
+        dashboard_url,
+        dimensions::text as dimensions
+    FROM obs_event_view
+    WHERE seq > ?
+    ORDER BY seq ASC
+    LIMIT 5000
+    """;
+```
+
+#### EventBatchMapper.xml에 추가
+
+```xml
+<insert id="insertTempEventObs" parameterType="hashmap">
+    INSERT INTO x01_if_event_obs (
+        seq, event_id, type, status, region, zone,
+        target_ip, target_name, target_contents, event_level,
+        trigger_id, stdnm, occu_time, r_time,
+        source, dashboard_url, dimensions, if_dt
+    ) VALUES
+    <foreach collection="dataList" item="item" separator=",">
+    (
+        #{item.seq},
+        #{item.event_id},
+        #{item.type},
+        #{item.status},
+        #{item.region},
+        #{item.zone},
+        #{item.target_ip},
+        #{item.target_name},
+        #{item.target_contents},
+        #{item.event_level},
+        #{item.trigger_id},
+        #{item.stdnm},
+        #{item.occu_time},
+        #{item.r_time},
+        #{item.source},
+        #{item.dashboard_url},
+        #{item.dimensions}::jsonb,
+        NOW()
+    )
+    </foreach>
+</insert>
+```
+
+### 2.6 배치 등록 (DB)
+
+`C01_BATCH_EVENT` 테이블에 등록:
+
+```sql
+INSERT INTO c01_batch_event (
+    system_code,
+    batch_bean,
+    batch_title,
+    event_sync_type,
+    db_driver,
+    db_url,
+    db_user,
+    db_pwd,
+    use_yn
+) VALUES (
+    'OBS001',
+    'EST030',
+    'Observability 이벤트 연동',
+    'EST030',
+    'org.postgresql.Driver',
+    'jdbc:postgresql://{host}:{port}/{db}',
+    '{user}',
+    '{encrypted_password}',
+    'Y'
+);
+```
+
+---
+
+## 3. 프로시저 구현
+
+### 3.1 개요
+
+- 프로시저명: `p_combine_event_obs`
+- 역할: x01_if_event_obs → cmon_event_info 이관
+- 호출: CombineEventServiceJob에서 호출
+
+### 3.2 처리 로직
+
+```
+[x01_if_event_obs 임시 데이터]
+       │
+       ▼
+[타입 분기]
+  ├─ Infra: target_ip 기준 inventory_master 매칭
+  │         → 관제영역 파생 (CSW/HW/VM)
+  │
+  └─ Service/Platform: target_name + region 기준
+                       cmon_service_inventory_master 매칭
+                       → 미등록 시 Slack 알림
+       │
+       ▼
+[예외 대상 체크]
+  ├─ Infra: cmon_exception_event_detail 조회
+  └─ Service/Platform: cmon_exception_service_detail 조회
+       │
+       ▼
+[cmon_event_info INSERT/UPDATE]
+  ├─ 신규 이벤트: INSERT
+  └─ 해소 이벤트: UPDATE (r_time, status)
+       │
+       ▼
+[x01_if_event_obs 삭제 또는 처리완료 마킹]
+```
+
+### 3.3 프로시저 골격
+
+```sql
+CREATE OR REPLACE PROCEDURE p_combine_event_obs()
+LANGUAGE plpgsql
+AS $$
+DECLARE
+    v_row RECORD;
+    v_event_seq BIGINT;
+    v_host_group VARCHAR(200);
+    v_control_area VARCHAR(20);
+    v_is_exception BOOLEAN;
+BEGIN
+    -- 1. 임시 테이블에서 미처리 데이터 조회
+    FOR v_row IN
+        SELECT * FROM x01_if_event_obs
+        WHERE processed_yn = 'N'
+        ORDER BY seq
+    LOOP
+        BEGIN
+            -- 2. 타입별 분기 처리
+            IF v_row.type = 'infra' THEN
+                -- Infra 처리
+                CALL p_process_infra_event(v_row, v_host_group, v_control_area, v_is_exception);
+            ELSE
+                -- Service/Platform 처리
+                CALL p_process_service_event(v_row, v_host_group, v_control_area, v_is_exception);
+            END IF;
+
+            -- 3. 예외 대상이 아닌 경우 이벤트 저장
+            IF NOT v_is_exception THEN
+                IF v_row.status = 'firing' THEN
+                    -- 신규 이벤트 INSERT
+                    INSERT INTO cmon_event_info (...) VALUES (...);
+                ELSE
+                    -- 해소 이벤트 UPDATE
+                    UPDATE cmon_event_info
+                    SET r_time = v_row.r_time, status = 'resolved'
+                    WHERE event_id = v_row.event_id;
+                END IF;
+            END IF;
+
+            -- 4. 처리 완료 마킹
+            UPDATE x01_if_event_obs
+            SET processed_yn = 'Y'
+            WHERE seq = v_row.seq;
+
+        EXCEPTION WHEN OTHERS THEN
+            -- 에러 로깅
+            RAISE NOTICE 'Error processing seq %: %', v_row.seq, SQLERRM;
+        END;
+    END LOOP;
+END;
+$$;
+```
+
+### 3.4 미등록 이벤트 Slack 알림
+
+Service/Platform 이벤트 중 매칭 실패 시:
+
+```sql
+-- Slack 알림용 테이블에 INSERT (별도 배치에서 Slack 발송)
+INSERT INTO x01_unregistered_event_alert (
+    event_id, type, target_name, region, occu_time, alert_yn, cret_dt
+) VALUES (
+    v_row.event_id, v_row.type, v_row.target_name, v_row.region, v_row.occu_time, 'N', NOW()
+);
+```
+
+---
+
+# Part 2. Web (luppiter_web)
+
+---
+
+## 4. 프로젝트 구조
+
+### 4.1 서비스/플랫폼 관리 (구현 완료)
+
+> **Note**: 기존 Stt* 파일 확장 방식으로 구현됨 (LUPR-687)
 
 ```
 src/main/java/com/ktc/luppiter/web/
 ├── controller/
-│   └── ObsController.java                    # O11y 관련 컨트롤러 (신규)
+│   └── SttController.java                    # 기존 파일에 API 추가
 ├── service/
-│   ├── ObsService.java                       # 인터페이스 (신규)
+│   ├── SttService.java                       # 인터페이스 메서드 추가
 │   └── impl/
-│       └── ObsServiceImpl.java               # 구현체 (신규)
-├── mapper/
-│   └── ObsMapper.java                        # 매퍼 인터페이스 (신규)
-└── ...
+│       └── SttServiceImpl.java               # 구현체 메서드 추가
+└── mapper/
+    └── SttMapper.java                        # 매퍼 메서드 추가
 
 src/main/resources/sqlmap/
-└── sql-obs.xml                               # SQL 매핑 (신규)
+├── sql-stt.xml                               # 서비스 인벤토리 쿼리 추가
+└── sql-ctl.xml                               # 호스트그룹 UNION 쿼리 추가
 
-src/main/webapp/WEB-INF/jsp/
-└── obs/
-    ├── serviceInventory.jsp                  # 서비스/플랫폼 등록 화면 (신규)
-    ├── serviceInventoryPopup.jsp             # 등록 팝업 (신규)
-    └── ...
+src/main/webapp/WEB-INF/jsp/stt/
+├── servicePlatformManage.jsp                 # 목록 화면
+└── popupServicePlatformInfo.jsp              # 등록/수정 팝업
 ```
 
-### 1.2 기존 파일 수정
+**테이블**: `d00_service_inventory_master`
+
+### 4.2 기존 파일 수정 (예정)
 
 ```
 src/main/java/com/ktc/luppiter/web/
@@ -75,9 +531,9 @@ src/main/webapp/WEB-INF/jsp/
 
 ---
 
-## 2. 코딩 패턴
+## 5. 코딩 패턴
 
-### 2.1 Controller 패턴
+### 5.1 Controller 패턴
 
 ```java
 @Controller
@@ -159,7 +615,7 @@ public class ObsController extends WebControllerHelper {
 }
 ```
 
-### 2.2 Service 패턴
+### 5.2 Service 패턴
 
 ```java
 // Interface
@@ -224,7 +680,7 @@ public class ObsServiceImpl implements ObsService {
 }
 ```
 
-### 2.3 Mapper 패턴
+### 5.3 Mapper 패턴
 
 ```java
 @Mapper
@@ -244,7 +700,7 @@ public interface ObsMapper {
 }
 ```
 
-### 2.4 SQL 매핑 패턴
+### 5.4 SQL 매핑 패턴
 
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
@@ -326,65 +782,81 @@ public interface ObsMapper {
 
 ---
 
-## 3. 기능별 구현 상세
+## 6. 기능별 구현 상세
 
-### 3.1 서비스/플랫폼 등록 (신규)
+### 6.1 서비스/플랫폼 등록 (구현 완료 - LUPR-687)
 
-#### 3.1.1 화면 구성
+#### 6.1.1 화면 구성
 
 | 구성요소 | 파일 | 비고 |
 |---------|------|------|
-| 메인 화면 | obs/serviceInventory.jsp | 목록 + 검색 |
-| 등록 팝업 | obs/serviceInventoryPopup.jsp | 신규 등록 |
-| 상세 팝업 | obs/serviceInventoryDetail.jsp | 조회/수정 |
+| 메인 화면 | stt/servicePlatformManage.jsp | 목록 + 검색 |
+| 등록/수정 팝업 | stt/popupServicePlatformInfo.jsp | 등록/수정 겸용 |
 
-#### 3.1.2 API 목록
+#### 6.1.2 API 목록
 
 | API | Method | Endpoint | 설명 |
 |-----|--------|----------|------|
-| 목록 조회 | POST | /api/obs/service/list | 페이징 포함 |
-| 상세 조회 | POST | /api/obs/service/detail | 단건 조회 |
-| 등록 | POST | /api/obs/service/save | 신규 등록 |
-| 수정 | POST | /api/obs/service/update | 정보 수정 |
-| 삭제 | POST | /api/obs/service/delete | 삭제 (use_yn='N') |
+| 목록 조회 | POST | /api/stt/servicePlatformList | 페이징 + 호스트그룹 권한 필터링 |
+| 상세 조회 | POST | /api/stt/servicePlatformInfo | 단건 조회 |
+| 중복 체크 | POST | /api/stt/servicePlatformCheck | svc_type + region 중복 확인 |
+| 저장 | POST | /api/stt/saveServiceInventoryInfo | 등록/수정 (mode 파라미터) |
 
-#### 3.1.3 입력 항목
+#### 6.1.3 권한
+
+| 기능 | 권한 조건 |
+|------|----------|
+| 조회 | 사용자에게 할당된 호스트그룹만 (설비권한그룹-호스트그룹) |
+| 저장 | `관제담당자` 역할만 |
+
+> **Note**: 신규 호스트그룹 생성 시 [권한관리 > 설비권한그룹-호스트그룹]에서 할당 필요
+
+#### 6.1.4 입력 항목
 
 | 항목 | 필드명 | 타입 | 필수 | 비고 |
 |------|--------|------|------|------|
-| 서비스 타입 | serviceType | String | Y | 'SERVICE' / 'PLATFORM' |
-| 서비스명 | serviceNm | String | Y | |
-| Namespace | namespace | String | Y | |
-| 리전 | region | String | Y | 예: DX-G-SE |
-| L1 (분류) | l1LayerCd | String | Y | 계위 코드 |
-| L2 (도메인) | l2LayerCd | String | Y | 계위 코드 |
-| L3 (표준서비스) | l3LayerCd | String | Y | 계위 코드 |
-| Zone (L4) | zone | String | Y | |
+| 서비스 타입 | svc_type | String | Y | 'SERVICE' / 'PLATFORM' |
+| 리전 | region | String | Y | L4 Zone 코드 |
+| L1 (분류) | l1_layer_cd | String | Y | 계위 코드 |
+| L2 (도메인) | l2_layer_cd | String | Y | 계위 코드 |
+| L3 (표준서비스) | l3_layer_cd | String | Y | 계위 코드 |
 
-#### 3.1.4 처리 로직
+> **Note**: 서비스명(service_nm), Namespace 입력 필드 제거됨 (1/28 피드백 반영)
+
+#### 6.1.5 처리 로직
 
 ```
-[등록 버튼 클릭]
+[저장 버튼 클릭]
+    │
+    ▼
+[권한 체크]
+  └─ userAuth == '관제담당자' 확인
     │
     ▼
 [Validation]
   ├─ 필수값 체크
-  └─ 중복 체크 (serviceNm + region)
+  └─ 중복 체크 (svc_type + region)
     │
     ▼
 [DB 저장]
-  ├─ cmon_service_inventory_master INSERT
-  └─ 호스트그룹 자동생성 (cmon_group_layer INSERT)
+  ├─ d00_service_inventory_master INSERT/UPDATE
+  └─ 호스트그룹 자동생성 (cmon_layer_code_info INSERT)
     │
     ▼
 [응답 반환]
 ```
 
+#### 6.1.6 호스트그룹 네이밍 규칙
+
+형식: `{L1_nm}_{L3_nm}_{L4_nm}_{svc_type_nm}`
+
+예시: `클라우드_KT Cloud_G-SE_Service`
+
 ---
 
-### 3.2 관제 대상 삭제 (탭 분리)
+### 6.2 관제 대상 삭제 (탭 분리)
 
-#### 3.2.1 화면 변경
+#### 6.2.1 화면 변경
 
 **기존**: deleteHosts.jsp (Zabbix만)
 
@@ -393,7 +865,7 @@ public interface ObsMapper {
 - Tab 2: Zenius (신규)
 - Tab 3: Observability (신규)
 
-#### 3.2.2 탭별 처리 로직
+#### 6.2.2 탭별 처리 로직
 
 | 탭 | 장비 조회 | 삭제 처리 |
 |----|----------|----------|
@@ -401,13 +873,13 @@ public interface ObsMapper {
 | Zenius | inventory_master | DB 저장만 |
 | O11y | cmon_service_inventory_master | DB 저장만 |
 
-#### 3.2.3 API 추가/수정
+#### 6.2.3 API 추가/수정
 
 | API | Method | Endpoint | 변경사항 |
 |-----|--------|----------|---------|
 | 삭제 처리 | POST | /api/mng/hostsMng/remove | monitorType 파라미터 추가 |
 
-#### 3.2.4 파라미터 추가
+#### 6.2.4 파라미터 추가
 
 ```java
 // 기존
@@ -418,7 +890,7 @@ map.put("requestType", "DEL");
 map.put("monitorType", "ZABBIX");  // ZABBIX / ZENIUS / O11Y
 ```
 
-#### 3.2.5 Service 로직 수정
+#### 6.2.5 Service 로직 수정
 
 ```java
 public void removeHostManage(Map<String, Object> map) throws Exception {
@@ -444,9 +916,9 @@ public void removeHostManage(Map<String, Object> map) throws Exception {
 
 ---
 
-### 3.3 예외 관리 (타입 선택 팝업)
+### 6.3 예외 관리 (타입 선택 팝업)
 
-#### 3.3.1 화면 변경
+#### 6.3.1 화면 변경
 
 **기존**: subEventExcpState.jsp (Infra만)
 
@@ -458,7 +930,7 @@ public void removeHostManage(Map<String, Object> map) throws Exception {
   - Platform (Observability)
 - 선택한 타입에 따라 컬럼 표시 분기
 
-#### 3.3.2 탭별 조회 테이블
+#### 6.3.2 탭별 조회 테이블
 
 | 탭 | 장비 대상 조회 | 이벤트 목록 조회 | 저장 테이블 |
 |----|--------------|-----------------|------------|
@@ -466,7 +938,7 @@ public void removeHostManage(Map<String, Object> map) throws Exception {
 | Service | cmon_service_inventory_master | 인벤토리 + O11y API | cmon_exception_service_detail |
 | Platform | cmon_service_inventory_master | 인벤토리 + O11y API | cmon_exception_service_detail |
 
-#### 3.3.3 API 추가
+#### 6.3.3 API 추가
 
 | API | Method | Endpoint | 설명 |
 |-----|--------|----------|------|
@@ -474,7 +946,7 @@ public void removeHostManage(Map<String, Object> map) throws Exception {
 | 서비스 이벤트 조회 | POST | /api/evt/comm/serviceEventList | O11y API 연동 |
 | 서비스 예외 등록 | POST | /api/evt/excp/saveService | Service/Platform용 |
 
-#### 3.3.4 신규 Mapper 쿼리
+#### 6.3.4 신규 Mapper 쿼리
 
 ```xml
 <!-- 서비스/플랫폼 예외 상세 등록 -->
@@ -512,9 +984,9 @@ public void removeHostManage(Map<String, Object> map) throws Exception {
 
 ---
 
-### 3.4 메인터넌스 관리 (타입 선택 팝업)
+### 6.4 메인터넌스 관리 (타입 선택 팝업)
 
-#### 3.4.1 화면 변경
+#### 6.4.1 화면 변경
 
 **기존**: subMaintenanceState.jsp (Infra만)
 
@@ -528,7 +1000,7 @@ public void removeHostManage(Map<String, Object> map) throws Exception {
 
 > **주의**: Zenius는 메인터넌스 미지원 (팝업 내 안내 문구 표시)
 
-#### 3.4.2 탭별 API 연동
+#### 6.4.2 탭별 API 연동
 
 | 탭 | 메인터넌스 API |
 |----|---------------|
@@ -537,36 +1009,82 @@ public void removeHostManage(Map<String, Object> map) throws Exception {
 | Service | O11y API 실제 중단 |
 | Platform | O11y API 실제 중단 |
 
-#### 3.4.3 API 추가
+#### 6.4.3 API 추가
 
 | API | Method | Endpoint | 설명 |
 |-----|--------|----------|------|
 | 서비스 메인터넌스 등록 | POST | /api/evt/maint/saveService | Service/Platform용 |
 | O11y 메인터넌스 API 호출 | - | ObsApiService | 외부 API 연동 |
 
-#### 3.4.4 O11y API 연동 서비스
+#### 6.4.4 O11y API 연동 서비스 (멀티 리전)
 
+> **Note**: O11y API가 리전별로 분리됨 (현재: GB, SE). 리전 확장 가능성 고려하여 Map 기반 설정 권장.
+
+**설정 (application.yml)** - 리전 확장 고려:
+```yaml
+obs:
+  api:
+    timeout: 30000
+    regions:
+      GB:
+        url: https://obs-api-gb.example.com
+        name: 경북
+      SE:
+        url: https://obs-api-se.example.com
+        name: 서울
+      # 신규 리전 추가 시 여기에 추가
+      # CC:
+      #   url: https://obs-api-cc.example.com
+      #   name: 충청
+```
+
+**서비스 구현** - Map 기반 리전 관리:
 ```java
 @Slf4j
 @Service
+@ConfigurationProperties(prefix = "obs.api")
 public class ObsApiService {
 
-    @Value("${obs.api.url}")
-    private String obsApiUrl;
-
-    @Value("${obs.api.timeout:30000}")
     private int timeout;
+    private Map<String, RegionConfig> regions = new HashMap<>();
+
+    @Data
+    public static class RegionConfig {
+        private String url;
+        private String name;
+    }
+
+    /**
+     * 리전 코드에서 API URL 추출
+     * - region 값에서 리전 코드 파싱 (예: "DX-G-SE" → "SE")
+     */
+    private String getApiUrl(String region) {
+        if (region == null) {
+            throw new IllegalArgumentException("Region is required");
+        }
+
+        // 리전 코드 추출 (마지막 2자리 또는 설정된 패턴)
+        for (String key : regions.keySet()) {
+            if (region.contains(key)) {
+                return regions.get(key).getUrl();
+            }
+        }
+
+        throw new IllegalArgumentException("Unknown region: " + region);
+    }
 
     /**
      * O11y 메인터넌스 등록
      */
     public Map<String, Object> createMaintenance(Map<String, Object> params) throws Exception {
-        log.info("[O11y API] 메인터넌스 등록 요청: {}", params);
+        String region = (String) params.get("region");
+        String baseUrl = getApiUrl(region);
 
-        // TODO: O11y API 스펙 확인 후 구현
-        String endpoint = obsApiUrl + "/api/v1/maintenance";
+        log.info("[O11y API] 메인터넌스 등록 요청 ({}): {}", region, params);
 
-        // API 호출 로직
+        String endpoint = baseUrl + "/api/v1/maintenance";
+
+        // API 호출 로직 (RestTemplate 또는 WebClient 사용)
         // ...
 
         return result;
@@ -576,20 +1094,36 @@ public class ObsApiService {
      * O11y 메인터넌스 해제
      */
     public Map<String, Object> deleteMaintenance(Map<String, Object> params) throws Exception {
-        log.info("[O11y API] 메인터넌스 해제 요청: {}", params);
+        String region = (String) params.get("region");
+        String baseUrl = getApiUrl(region);
 
-        // TODO: O11y API 스펙 확인 후 구현
+        log.info("[O11y API] 메인터넌스 해제 요청 ({}): {}", region, params);
+
+        // API 호출 로직
+        // ...
 
         return result;
     }
+
+    // Getter/Setter for ConfigurationProperties
+    public void setTimeout(int timeout) { this.timeout = timeout; }
+    public void setRegions(Map<String, RegionConfig> regions) { this.regions = regions; }
 }
 ```
 
+> **예외 API도 동일한 방식으로 리전별 분기 적용**
+
+**리전 확장 체크리스트**:
+- [ ] application.yml에 신규 리전 설정 추가
+- [ ] C01_BATCH_EVENT 테이블에 신규 리전 Worker 등록
+- [ ] EventWorkerFactory에 신규 리전 enum 추가
+- [ ] 테스트: 신규 리전 DB 연결 및 API 호출 확인
+
 ---
 
-## 4. API 엔드포인트 목록
+## 7. API 엔드포인트 목록
 
-### 4.1 신규 API
+### 7.1 신규 API
 
 | 기능 | Method | Endpoint | Controller |
 |------|--------|----------|------------|
@@ -603,7 +1137,7 @@ public class ObsApiService {
 | 서비스 예외 등록 | POST | /api/evt/excp/saveService | EvtExcpRestController |
 | 서비스 메인터넌스 등록 | POST | /api/evt/maint/saveService | EvtMaintController |
 
-### 4.2 수정 API
+### 7.2 수정 API
 
 | 기능 | Method | Endpoint | 변경사항 |
 |------|--------|----------|---------|
@@ -613,9 +1147,22 @@ public class ObsApiService {
 
 ---
 
-## 5. 체크리스트
+## 8. 체크리스트
 
-### 5.1 공통
+### 8.0 Scheduler (luppiter_scheduler)
+
+- [ ] EventWorkerFactory에 EST030 등록
+- [ ] ObservabilityEventWorker.java 생성
+- [ ] IFEventMapper.java에 observabilityEvent 쿼리 추가
+- [ ] EventBatchMapper.xml에 insertTempEventObs 추가
+- [ ] C01_BATCH_EVENT 테이블에 OBS001 등록
+- [ ] DB 연결 테스트 (Observability DB)
+- [ ] seq 기반 증분 조회 정상 동작
+- [ ] x01_if_event_obs INSERT 정상
+- [ ] 프로시저 p_combine_event_obs 생성
+- [ ] CombineEventServiceJob에 프로시저 호출 추가
+
+### 8.1 공통
 
 - [ ] WebControllerHelper 상속
 - [ ] super.setInit() 호출
@@ -624,25 +1171,27 @@ public class ObsApiService {
 - [ ] Logger 로깅 (시작/완료/에러)
 - [ ] Map<String, Object> 파라미터 사용
 
-### 5.2 서비스/플랫폼 등록
+### 8.2 서비스/플랫폼 등록 ✅ (LUPR-687 완료)
 
-- [ ] ObsController.java 생성
-- [ ] ObsService.java 인터페이스 생성
-- [ ] ObsServiceImpl.java 구현체 생성
-- [ ] ObsMapper.java 매퍼 생성
-- [ ] sql-obs.xml SQL 매핑 생성
-- [ ] serviceInventory.jsp 화면 생성
-- [ ] serviceInventoryPopup.jsp 팝업 생성
-- [ ] 호스트그룹 자동생성 로직
+- [x] SttController.java에 API 추가
+- [x] SttService.java 인터페이스 메서드 추가
+- [x] SttServiceImpl.java 구현체 메서드 추가
+- [x] SttMapper.java 매퍼 메서드 추가
+- [x] sql-stt.xml SQL 쿼리 추가
+- [x] servicePlatformManage.jsp 화면 생성
+- [x] popupServicePlatformInfo.jsp 팝업 생성
+- [x] 호스트그룹 자동생성 로직
+- [x] 권한 체크 (관제담당자)
+- [x] 호스트그룹 기반 조회 필터링
 
-### 5.3 관제 대상 삭제
+### 8.3 관제 대상 삭제
 
 - [ ] deleteHosts.jsp 탭 추가
 - [ ] monitorType 파라미터 처리
 - [ ] Zenius/O11y 삭제 로직 (DB만)
 - [ ] 삭제 테이블 분기 처리
 
-### 5.4 예외 관리
+### 8.4 예외 관리
 
 - [ ] subEventExcpState.jsp 타입 선택 버튼/팝업 추가
 - [ ] 타입별 컬럼 표시 분기 처리
@@ -650,7 +1199,7 @@ public class ObsApiService {
 - [ ] 서비스 장비 조회 API
 - [ ] O11y 이벤트 조회 API
 
-### 5.5 메인터넌스 관리
+### 8.5 메인터넌스 관리
 
 - [ ] subMaintenanceState.jsp 타입 선택 버튼/팝업 추가
 - [ ] 타입별 컬럼 표시 분기 처리

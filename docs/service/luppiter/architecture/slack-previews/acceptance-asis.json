@@ -1,0 +1,42 @@
+{
+  "blocks": [
+    {
+      "type": "section",
+      "text": {
+        "type": "mrkdwn",
+        "text": ":bell: *[HMM2512100001] 관제수용 요청건 상태 알림*"
+      }
+    },
+    {
+      "type": "divider"
+    },
+    {
+      "type": "section",
+      "fields": [
+        {"type": "mrkdwn", "text": "*신청서 ID*\nHMM2512100001"},
+        {"type": "mrkdwn", "text": "*신청 상태*\n임시수용"}
+      ]
+    },
+    {
+      "type": "section",
+      "text": {
+        "type": "mrkdwn",
+        "text": "*제목*\n[관제 수용][CRM25121079391] 수용_IPC_7대_최원동"
+      }
+    },
+    {
+      "type": "section",
+      "fields": [
+        {"type": "mrkdwn", "text": "*신청부서*\nCloud통합관제팀"},
+        {"type": "mrkdwn", "text": "*신청자*\n유피테르_공용계정"}
+      ]
+    },
+    {
+      "type": "section",
+      "text": {
+        "type": "mrkdwn",
+        "text": "*호스트정보*\n[10.4.230.22] ivdi-pc50616u30-snd02\n[10.4.230.23] ivdi-pc50617u30-snd03\n[10.4.230.24] ivdi-pc50711u30-snd04\n[10.4.229.202] snode02-5s0911-c3-isovdi\n[10.4.229.203] snode03-5s0911-c5-isovdi\n[10.4.229.204] snode04-5s1303-c1-isovdi\n[10.4.229.205] snode05-5s1303-c3-isovdi"
+      }
+    }
+  ]
+}

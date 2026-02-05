@@ -1,0 +1,58 @@
+{
+  "blocks": [
+    {
+      "type": "header",
+      "text": {
+        "type": "plain_text",
+        "text": "🗑️ 관제삭제 [삭제완료] [DEL2512150001]"
+      }
+    },
+    {
+      "type": "section",
+      "text": {
+        "type": "mrkdwn",
+        "text": "*[관제 삭제][CRM25121512345] 삭제_IPC_3대_홍길동*"
+      }
+    },
+    {
+      "type": "divider"
+    },
+    {
+      "type": "section",
+      "text": {
+        "type": "mrkdwn",
+        "text": "• *시간:* 2025-12-15 10:00:00\n• *등록:* 홍길동 (Cloud통합관제팀)"
+      }
+    },
+    {
+      "type": "section",
+      "text": {
+        "type": "mrkdwn",
+        "text": "*대상:*"
+      }
+    },
+    {
+      "type": "rich_text",
+      "elements": [
+        {
+          "type": "rich_text_list",
+          "style": "bullet",
+          "elements": [
+            {
+              "type": "rich_text_section",
+              "elements": [{ "type": "text", "text": "server-01 (10.1.1.1)" }]
+            },
+            {
+              "type": "rich_text_section",
+              "elements": [{ "type": "text", "text": "server-02 (10.1.1.2)" }]
+            },
+            {
+              "type": "rich_text_section",
+              "elements": [{ "type": "text", "text": "server-03 (10.1.1.3)" }]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
