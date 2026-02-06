@@ -78,3 +78,9 @@ decisions/
 - 서비스 접두사 제거: `luppiter_scheduler` → `scheduler`
 - 소문자 + 언더스코어: `morning_report`
 - 짧고 명확하게: `web`, `api`, `scheduler`
+
+---
+
+## Related Rules
+
+- [doc-organization.md](doc-organization.md) - 문서 조직 규칙

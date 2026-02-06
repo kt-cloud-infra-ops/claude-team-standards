@@ -28,6 +28,9 @@ logs/
 # 세션 데이터
 .claude/todos/
 
+# Jira 로컬 캐시
+.claude/cache/
+
 # Gemini (개인용)
 .gemini
 gemini.md
