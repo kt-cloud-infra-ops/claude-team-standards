@@ -1,6 +1,7 @@
 -- ============================================================
--- Observability 연동 DDL
+-- Observability 연동 DDL / DML
 -- 작성일: 2026-01-20
+-- 수정일: 2026-02-06 (공통코드, zone매핑, 데이터 마이그레이션 추가)
 -- ============================================================
 
 -- ============================================================
@@ -21,7 +22,7 @@ CREATE TABLE cmon_service_inventory_master (
     use_yn              CHAR(1) DEFAULT 'Y',
     cretr_id            VARCHAR(50),
     cret_dt             TIMESTAMP DEFAULT NOW(),
-    CONSTRAINT uk_service_inven관제 tory UNIQUE (service_nm, region)
+    CONSTRAINT uk_service_inventory UNIQUE (service_nm, region)
 );
 
 CREATE INDEX idx_svc_inv_service_nm ON cmon_service_inventory_master(service_nm);
@@ -163,8 +164,34 @@ CREATE INDEX IF NOT EXISTS idx_event_info_type ON cmon_event_info(type);
 
 
 -- ============================================================
--- (선택) 기존 데이터 UPDATE
+-- 6. 공통코드 추가 (CONTROL_AREA)
+-- 용도: 서비스/플랫폼 관제영역 표시
+-- 미적용 시: fn_common_code_nm('CONTROL_AREA', control_area) NULL 반환
 -- ============================================================
 
--- 기존 Zabbix 이벤트에 source, type 설정
--- UPDATE cmon_event_info SET source = 'zabbix', type = 'infra' WHERE source IS NULL;
+INSERT INTO c00_common_code (group_code, code, code_nm, order_no, use_yn)
+VALUES ('CONTROL_AREA', 'CA011', 'Service', 11, 'Y');
+INSERT INTO c00_common_code (group_code, code, code_nm, order_no, use_yn)
+VALUES ('CONTROL_AREA', 'CA012', 'Platform', 12, 'Y');
+
+
+-- ============================================================
+-- 7. c02_zone_type_mapping 확인
+-- 용도: 서비스 인벤토리 zone 값이 매핑 테이블에 등록되어야 함
+-- 미적용 시: 대시보드 INNER JOIN c02_zone_type_mapping에서 제외됨
+-- ============================================================
+
+-- 서비스 등록 시 사용하는 zone 값(예: DX-G-GB, DX-G-SE)이
+-- c02_zone_type_mapping에 이미 등록되어 있는지 확인 필요.
+-- 미등록 zone은 아래와 같이 추가:
+-- INSERT INTO c02_zone_type_mapping (zone, zone_type, center_type)
+-- VALUES ('DX-G-GB', '존타입', '센터타입');
+
+
+-- ============================================================
+-- 8. 기존 데이터 마이그레이션
+-- 용도: 배포 시 기존 이벤트에 source/type 기본값 세팅
+-- 미적용 시: source 기반 필터링/표시에서 기존 이벤트 빈값
+-- ============================================================
+
+UPDATE cmon_event_info SET source = 'zabbix', type = 'infra' WHERE source IS NULL;

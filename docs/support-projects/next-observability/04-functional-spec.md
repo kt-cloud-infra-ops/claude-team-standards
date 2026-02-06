@@ -15,6 +15,7 @@
 6. [관제 대상 삭제](#6-관제-대상-삭제)
 7. [예외 관리](#7-예외-관리)
 8. [메인터넌스 관리](#8-메인터넌스-관리)
+9. [기존 쿼리 영향도 분석 (inventory_master UNION)](#9-기존-쿼리-영향도-분석-inventory_master-union)
 
 ---
 
@@ -403,6 +404,134 @@ EventWorkerFactory
   - Platform (Observability)
 - 선택한 타입에 따라 컬럼 표시 분기
 - Zenius는 메인터넌스 미지원 (팝업에서 안내)
+
+---
+
+## 9. 기존 쿼리 영향도 분석 (inventory_master UNION)
+
+> 작성일: 2026-02-06
+> 관련: LUPR-699 (WEB), LUPR-700 (Scheduler)
+
+### 9.1 개요
+
+`cmon_service_inventory_master` 추가에 따라, 기존에 `inventory_master`만 조회하던 쿼리에
+서비스 인벤토리를 UNION으로 포함해야 한다.
+
+**미적용 시**: 서비스/플랫폼을 등록해도 기존 화면(대시보드, 이벤트, 인시던트 등)에서 보이지 않음.
+
+---
+
+### 9.2 영향 범위 요약
+
+| 우선순위 | 파일 | 화면/기능 | UNION 대상 쿼리 수 |
+|:--------:|------|----------|:-----------------:|
+| 🔴 P0 | sql-dashboard.xml | 관제 대시보드 | 7 |
+| 🔴 P0 | sql-evt.xml | 이벤트 상황관리/이력/인시던트 | 5~7 |
+| 🔴 P0 | MaintenanceAlarmServiceMapper.xml | 메인터넌스 알람 (Scheduler) | 5 |
+| 🔴 P0 | ExceptionEventAlarmServiceMapper.xml | 예외 알람 (Scheduler) | 1 |
+| 🟡 P1 | sql-cmm.xml | 공통 관제영역 조회 | 1 |
+| 🟡 P1 | sql-evt-cmm.xml | 예외/메인터넌스 공통 장비 조회 | 1 |
+| 🟡 P1 | sql-icd.xml | 인시던트 검색 조건 | 2 |
+| 🟡 P1 | morning_report (Python) | 모닝리포트 집계 | 2 |
+| 🟢 P2 | sql-stt.xml | 서비스는 별도 화면 분리 | - |
+| 🟢 P2 | sql-api.xml | Infra 전용 API | - |
+| 🟢 P2 | sql-zab.xml | Zabbix 전용 | - |
+
+---
+
+### 9.3 P0 상세 — sql-dashboard.xml (관제 대시보드)
+
+| 쿼리 ID/용도 | 라인 | 현재 JOIN | 영향 |
+|-------------|------|----------|------|
+| 대시보드 이벤트 현황 | L20 | `INNER JOIN inventory_master inv ON ei.target_ip = inv.zabbix_ip` | 서비스 이벤트가 대시보드에 안 보임 |
+| 센터별 장비 수 집계 | L66-95 | `FROM inventory_master mst` | 서비스 인벤토리 장비 수 누락 |
+| 존별 장비 수 집계 | L121-130 | `FROM inventory_master mst` | 존별 집계 누락 |
+| 존타입별 집계 | L175-184 | `FROM inventory_master mst` | 존타입별 집계 누락 |
+| 표준서비스별 통계 | L239-244 | `FROM inventory_master inv` | 표준서비스별 집계 누락 |
+| 호스트그룹 권한 매핑 | L420-424 | `INNER JOIN inventory_master mst` | 서비스 인벤토리 권한 매핑 안됨 |
+| 인벤토리 카운트 (존별) | L477-482 | `FROM inventory_master inv` | 관제현황 수치 불일치 |
+
+### 9.4 P0 상세 — sql-evt.xml (이벤트 관리)
+
+| 쿼리 ID/용도 | 라인 | 현재 JOIN | 영향 |
+|-------------|------|----------|------|
+| 실시간 이벤트 목록 | L384-388 | `INNER JOIN inventory_master B ON A.target_ip = B.zabbix_ip` | 서비스 이벤트에 인벤토리 정보 안 붙음 |
+| 이벤트 이력 조회 | L613-617 | `INNER JOIN inventory_master B` | 이력에서 서비스 이벤트 정보 누락 |
+| 이벤트 정제관리 | L1122-1126 | `LEFT JOIN inventory_master B` | 정제관리에서 서비스 이벤트 누락 |
+| 이벤트 이력 V2 | L1271-1275 | `LEFT JOIN inventory_master B` | 서비스 이벤트 이력 누락 |
+| 인시던트 이벤트 | L1500-1504 | `LEFT JOIN inventory_master B` | 인시던트에서 서비스 이벤트 없음 |
+
+### 9.5 P0 상세 — Scheduler Mapper
+
+**MaintenanceAlarmServiceMapper.xml**:
+
+| 쿼리 용도 | 라인 | 영향 |
+|-----------|------|------|
+| 메인터넌스 알람 대상 inventory 조회 | L96-102 | 서비스 메인터넌스 알람 발송 안됨 |
+| 메인터넌스 이력-인벤토리 매핑 | L431-447 | 서비스 메인터넌스 이력 누락 |
+| 메인터넌스 대상-인벤토리 매핑 | L696-702, L740-755 | 서비스 대상 매핑 안됨 |
+| 운영담당부서 매핑 | L857-861 | 서비스 인벤토리 운영부서 매핑 안됨 |
+
+**ExceptionEventAlarmServiceMapper.xml**:
+
+| 쿼리 용도 | 라인 | 영향 |
+|-----------|------|------|
+| 예외 상세-인벤토리 매핑 | L61-66 | 서비스 예외 대상 매핑 안됨 |
+
+---
+
+### 9.6 컬럼 매핑
+
+| inventory_master | cmon_service_inventory_master | 비고 |
+|------------------|-------------------------------|------|
+| zabbix_ip (PK) | target_name 또는 service_seq | 키 타입이 다름 |
+| host_nm | service_nm | |
+| control_area | svc_type ('Service'/'Platform') | |
+| host_group_nm | host_group_nm | 동일 |
+| l1~l3_layer_cd, zone | l1~l3_layer_cd, region | 동일 구조 |
+| system_code | 'OBS' 고정값 | |
+| mgmt_ip, ipmi_ip, equnr | NULL | 서비스에 없음 |
+
+### 9.7 UNION 적용 패턴
+
+```sql
+-- AS-IS
+FROM inventory_master im
+LEFT JOIN inventory_master_sub ims ON im.zabbix_ip = ims.zabbix_ip
+
+-- TO-BE (UNION ALL 서브쿼리)
+FROM (
+    SELECT zabbix_ip, host_nm, control_area, host_group_nm,
+           l1_layer_cd, l2_layer_cd, l3_layer_cd, zone, system_code,
+           mgmt_ip, ipmi_ip, equnr, idc_center_code
+    FROM inventory_master
+
+    UNION ALL
+
+    SELECT target_name AS zabbix_ip, service_nm AS host_nm,
+           svc_type AS control_area, host_group_nm,
+           l1_layer_cd, l2_layer_cd, l3_layer_cd, region AS zone,
+           'OBS' AS system_code,
+           NULL AS mgmt_ip, NULL AS ipmi_ip, NULL AS equnr, NULL AS idc_center_code
+    FROM cmon_service_inventory_master
+    WHERE use_yn = 'Y'
+) im
+-- inventory_master_sub JOIN은 Infra 전용이므로 LEFT JOIN 유지하되 서비스는 NULL
+```
+
+### 9.8 대안: 통합 뷰 생성
+
+반복 UNION을 줄이기 위해 뷰 생성 고려:
+
+```sql
+CREATE VIEW v_inventory_all AS
+SELECT zabbix_ip, host_nm, ... FROM inventory_master
+UNION ALL
+SELECT target_name, service_nm, ... FROM cmon_service_inventory_master WHERE use_yn = 'Y';
+```
+
+장점: 기존 쿼리에서 `inventory_master` → `v_inventory_all`로 교체만 하면 됨.
+단점: inventory_master_sub JOIN 처리, 성능 검증 필요.
 
 ---
 

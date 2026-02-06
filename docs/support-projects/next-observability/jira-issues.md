@@ -1,6 +1,6 @@
 # O11y 연동 프로젝트 - Jira 이슈 목록
 
-> 조회일: 2026-02-03
+> 조회일: 2026-02-06
 > 프로젝트: TECHIOPS26
 
 ---
@@ -10,9 +10,9 @@
 | 구분 | 개수 |
 |------|------|
 | 에픽 | 3건 |
-| 작업 | 4건 |
+| 작업 | 5건 |
 | 진행 중 | 3건 |
-| 완료 | 4건 |
+| 완료 | 5건 |
 
 ---
 
@@ -34,6 +34,7 @@
 | [TECHIOPS26-228](https://ktcloud.atlassian.net/browse/TECHIOPS26-228) | 서비스/플랫폼 등록 설계 협의 | ✅ 완료 | 김지웅 | 설계 |
 | [TECHIOPS26-231](https://ktcloud.atlassian.net/browse/TECHIOPS26-231) | 계위/호스트 관리 화면설계 | ✅ 완료 | 김지웅 | 설계 |
 | [TECHIOPS26-232](https://ktcloud.atlassian.net/browse/TECHIOPS26-232) | 계위/호스트 관리 설계 협의 | ✅ 완료 | 김지웅 | 설계 |
+| [TECHIOPS26-271](https://ktcloud.atlassian.net/browse/TECHIOPS26-271) | Observability 배포 전 기존 시스템 사전 점검 | 📋 할일 | 김지웅 | cross-cutting |
 
 ---
 
@@ -109,14 +110,16 @@
 
 TECHIOPS26은 팀 업무 관리용이며, 실제 개발 티켓은 LUPR 프로젝트에 있음.
 
-| TECHIOPS26 | 관련 LUPR | 제목 |
-|------------|-----------|------|
-| TECHIOPS26-220 | LUPR-683 | 이벤트 예외 관리 기능 개선 |
-| TECHIOPS26-221 | LUPR-684 | 메인터넌스 관리 기능 개선 |
-| TECHIOPS26-222 | LUPR-690 | 이벤트 관리 |
-| - | LUPR-686 | 이벤트 연동 처리 (Scheduler) |
-| - | LUPR-687 | 서비스/플랫폼 관리 화면 |
-| - | LUPR-692 | 관제삭제 |
+| TECHIOPS26 | 관련 LUPR | 제목 | 상태 |
+|------------|-----------|------|------|
+| TECHIOPS26-220 | LUPR-683 | 이벤트 예외 관리 기능 개선 | 개발 |
+| TECHIOPS26-221 | LUPR-684 | 메인터넌스 관리 기능 개선 | 개발 |
+| TECHIOPS26-222 | LUPR-690 | 이벤트 관리 | 개발 |
+| - | LUPR-686 | 이벤트 연동 처리 (Scheduler) | 개발 |
+| - | LUPR-687 | 서비스/플랫폼 관리 화면 (DDL, DML) | ✅ 개발완료 |
+| - | LUPR-692 | 관제삭제 | 개발 |
+| TECHIOPS26-79 | LUPR-699 | 전체 메뉴 서비스 인벤토리 적용 - WEB | 해야 할 일 |
+| TECHIOPS26-79 | LUPR-700 | 전체 메뉴 서비스 인벤토리 적용 - Scheduler | 해야 할 일 |
 
 ---
 
@@ -133,4 +136,5 @@ TECHIOPS26은 팀 업무 관리용이며, 실제 개발 티켓은 LUPR 프로젝
 
 | 날짜 | 변경 내용 |
 |------|----------|
+| 2026-02-06 | TECHIOPS26-271 추가, LUPR-687 개발완료 반영, LUPR-699/700 추가 |
 | 2026-02-03 | TECHIOPS26 프로젝트 기준으로 재작성, 멀티리전 영향도 분석 추가 |

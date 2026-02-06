@@ -1,7 +1,7 @@
 # Observability 연동 - 구현 가이드
 
 > 작성일: 2026-01-20
-> 수정일: 2026-02-03
+> 수정일: 2026-02-06
 > 기준: luppiter_scheduler, luppiter_web 기존 패턴 준수
 
 ---
@@ -23,6 +23,7 @@
    - 6.4 메인터넌스 관리 (타입 선택 팝업)
 7. [API 엔드포인트 목록](#7-api-엔드포인트-목록)
 8. [체크리스트](#8-체크리스트)
+   - 8.6 기존 시스템 Cross-Cutting (TECHIOPS26-271)
 
 ---
 
@@ -1206,6 +1207,21 @@ public class ObsApiService {
 - [ ] cmon_maintenance_service_detail 테이블 사용
 - [ ] O11y API 연동 서비스
 - [ ] Zenius 미지원 안내 문구
+
+### 8.6 기존 시스템 Cross-Cutting (TECHIOPS26-271)
+
+서비스 인벤토리 추가에 따른 기존 쿼리/데이터 영향도 항목:
+
+- [ ] CONTROL_AREA 공통코드 추가 (Service, Platform) → `02-ddl.sql` 6장
+- [ ] c02_zone_type_mapping 서비스 zone 등록 → `02-ddl.sql` 7장
+- [ ] 기존 이벤트 데이터 마이그레이션 (source/type UPDATE) → `02-ddl.sql` 8장
+- [ ] 기존 쿼리 inventory_master UNION 반영 (WEB ~30건, Scheduler 6건) → `04-functional-spec.md` 9장
+- [ ] Excel 다운로드 쿼리 서비스 인벤토리 반영
+- [ ] 검색 조건 드롭다운 확장 (관제영역/표준서비스)
+- [ ] 권한 체계 초기 설정 (설비권한그룹-호스트그룹 할당)
+
+> 상세 쿼리 목록: `04-functional-spec.md` 9장
+> 협력사 공유 가이드: `docs/temp/observability-cross-cutting-guide.md`
 
 ---
 

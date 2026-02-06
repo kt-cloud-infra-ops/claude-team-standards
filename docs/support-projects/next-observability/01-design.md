@@ -376,21 +376,23 @@ EventWorkerFactory
 
 ### 9.1 개발 항목
 
-| 분류 | Action Item | 비고 |
-|------|-------------|------|
-| 개발 | 이벤트 관리 | dimensions, url, source 표기 |
-| 개발 | 이벤트 예외 관리 - 예외 등록 화면 | 탭 분리 (zabbix, observability) |
-| 개발 | 메인터넌스 관리 - 등록/수정 화면 | 탭 분리 |
-| 개발 | 계위/호스트그룹 관리 페이지 | Service, Platform 계위 관리 |
-| 개발 | 서비스/플랫폼 등록 화면 | 인벤토리 목록과 유사 |
-| 개발 | 관제 삭제 | 탭 분리, zenius/observability 삭제 기능 |
-| 개발 | Observability Event Scheduler | 이벤트 연동 및 TEMP 테이블 누적 |
+| 분류 | Action Item | LUPR | 상태 |
+|------|-------------|------|------|
+| 개발 | 서비스/플랫폼 등록 화면 (DDL, DML) | LUPR-687 | ✅ 개발완료 |
+| 개발 | 이벤트 관리 | LUPR-690 | 개발 |
+| 개발 | 이벤트 예외 관리 | LUPR-683 | 개발 |
+| 개발 | 메인터넌스 관리 | LUPR-684 | 개발 |
+| 개발 | 관제 삭제 | LUPR-692 | 개발 |
+| 개발 | Observability Event Scheduler | LUPR-686 | 개발 |
+| 개발 | 전체 메뉴 서비스 인벤토리 적용 - WEB | LUPR-699 | 해야 할 일 |
+| 개발 | 전체 메뉴 서비스 인벤토리 적용 - Scheduler | LUPR-700 | 해야 할 일 |
+| 점검 | 기존 시스템 cross-cutting 사전 점검 | TECHIOPS26-271 | 해야 할 일 |
 
 ### 9.2 일정
 
 | 단계 | 일정 | 상태 |
 |------|------|------|
-| 유피테르 개발 (Observability) | ~2월 2주차 (2/13) | 진행예정 |
+| 유피테르 개발 (Observability) | ~2월 2주차 (2/13) | 진행 중 |
 | 유피테르 검증 (Observability) | ~2월 4주차 (2/27) | 진행예정 |
 | Zenius 샘플링 연동 | 2월 4주차 | 진행예정 |
 
@@ -401,6 +403,7 @@ EventWorkerFactory
 - Observability Event 연동에 대한 수용 범위에 따라 개발 범위가 변경될 수 있음
 - 현재 계위(L1~L4)를 유지할 경우: 변경 사항 없음
 - 계위 변경 시: DB/Backend/Frontend 광범위 변경
+- **기존 시스템 영향도**: 서비스 인벤토리 추가에 따른 cross-cutting 항목 별도 관리 (TECHIOPS26-271). 상세는 `04-functional-spec.md` 9장 및 협력사 공유 가이드 참고
 
 ---
 
