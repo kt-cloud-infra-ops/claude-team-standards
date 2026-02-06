@@ -24,6 +24,10 @@ logs/
 *.bak
 *.tmp
 .DS_Store
+docs/temp/
+
+# 외부 라이브러리
+lib/
 
 # 세션 데이터
 .claude/todos/
