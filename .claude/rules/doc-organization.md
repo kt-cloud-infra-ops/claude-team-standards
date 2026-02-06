@@ -1,25 +1,25 @@
 # Document Organization Rules
 
-## CRITICAL: 공통 설정 변경 시 동기화 필수
+## Rules 관리 원칙
 
-**공통 의사결정/규칙 변경 요청 시:**
-1. 반드시 현재 값 확인
-2. 변경 내용 명확히 파악
-3. 관련된 모든 위치 업데이트:
-   - `~/.claude/rules/` (개인 홈)
-   - `.claude/rules/` (프로젝트 repo)
-   - `CLAUDE.md` (참조하는 경우)
+| 위치 | 역할 | 내용 |
+|------|------|------|
+| `.claude/rules/` (프로젝트) | **팀 표준** (Git 공유) | 코딩, 테스트, 보안, 워크플로우 등 11개 |
+| `~/.claude/rules/` (개인) | **개인 환경 설정만** | hooks.md (개인 IDE/설정 의존) |
+| `CLAUDE.md` | **프로젝트 개요** | 구조, 슬래시 커맨드, 코딩 가이드 요약 |
+
+**규칙 변경 시**: `.claude/rules/` 수정 → Git commit으로 팀 공유
 
 ---
 
-## 폴더 구분 (3가지)
+## 폴더 구분
 
 | 폴더 | 용도 | 대상 |
 |------|------|------|
 | `workspace/` | **코드만** | .java, .py, .js 등 |
-| `docs/service/` | **Confluence 동기화** (사람용) | 아키텍처, SOP, 히스토리, 화면 명세 |
+| `docs/service/` | **서비스별 TASKS.md** | Jira 연동용 태스크 |
+| `docs/temp/` | **임시 작업 문서** | 작업 중 문서, Confluence 업로드 전 |
 | `docs/claude_*` | **Claude 전용** | lessons_learned, automations |
-| `docs/service/*/claude_*` | **Claude 전용** (프로젝트별) | temp, 구현 가이드 |
 
 **절대 workspace에 문서를 저장하지 않음!**
 
@@ -29,64 +29,41 @@
 
 ```
 docs/
-├── service/                 # Confluence 동기화 대상 (사람용)
-│   └── luppiter/
-│       ├── architecture/    # → [LUPPITER] 서비스 아키텍처
-│       ├── features/        # → [LUPPITER] 주요 기능 명세서
-│       ├── history/         # → [LUPPITER] History
-│       ├── sop/             # → [LUPPITER] SOP
-│       ├── luppiter_scheduler/
-│       │   ├── decisions/   # → [LUPPITER] History (설계 결정)
-│       │   └── claude_temp/ # Claude 전용 (Confluence X)
-│       ├── luppiter_web/
-│       │   ├── screens/     # → [LUPPITER] 주요 기능 명세서 > 화면 명세
-│       │   ├── api/         # → [LUPPITER] 주요 기능 명세서 > API
-│       │   └── claude_temp/ # Claude 전용 (Confluence X)
-│       └── luppiter_morning_report/
+├── service/                 # 서비스별 TASKS.md만
+│   ├── luppiter/
+│   │   └── TASKS.md
+│   ├── gaia/
+│   │   └── TASKS.md
+│   └── ...
 │
-├── support-projects/        # 지원 프로젝트 (서비스 횡단)
-│   └── next-observability/  # → 05. 지원 프로젝트
+├── temp/                    # 임시 작업 문서
 │
 ├── claude_lessons_learned/  # Claude 학습 내용
-│   ├── java/
-│   ├── db/
-│   └── common/
 │
 ├── claude_automations/      # 자동화 패턴
 │
 ├── decisions/               # 팀 의사결정 (ADR)
 │
-└── temp/                    # 임시 문서
+└── ktcloud/                 # 회사 공통 가이드
 ```
 
 ---
 
-## Confluence 동기화 규칙
+## Confluence 운영 규칙
 
-### 동기화 대상 (`docs/service/luppiter/`)
+### 핵심 원칙
 
-| 로컬 폴더 | Confluence 위치 | 설명 |
-|----------|----------------|------|
-| `architecture/` | [LUPPITER] 서비스 아키텍처 | 시스템 구조, 권한 체계 |
-| `features/` | [LUPPITER] 주요 기능 명세서 | API, 주요 기능 설명 |
-| `history/` | [LUPPITER] History | 트러블슈팅, 장애 대응 |
-| `sop/` | [LUPPITER] SOP | 운영 절차 |
-| `luppiter_web/screens/` | [LUPPITER] 주요 기능 명세서 > 화면 명세 | 화면 기능 명세 |
-| `luppiter_web/api/` | [LUPPITER] 주요 기능 명세서 > API | API 명세 |
+- **Confluence = Source of Truth** (메인 문서)
+- **로컬 = 작업용 임시 문서** (docs/temp/)
+- 작업 완료 후 Confluence 업로드 → 로컬 삭제
 
-### 동기화 절차
+### Confluence 작업 흐름
 
-1. **변경 전 확인** - Confluence와 로컬 양쪽 확인
-2. **사람이 의사결정** - 충돌 시 수동 머지
-3. **업로드/다운로드** - Claude MCP 도구 사용
+1. **문서 작성**: `docs/temp/`에 임시 작성
+2. **Confluence 업로드**: REST API로 직접 업로드
+3. **로컬 삭제**: 업로드 완료 후 삭제
 
-### 동기화 대상 (`docs/support-projects/`)
-
-| 로컬 폴더 | Confluence 위치 | 설명 |
-|----------|----------------|------|
-| `next-observability/` | 05. 지원 프로젝트 | O11y 연동 |
-
-### Confluence 스페이스 매핑
+### Confluence 스페이스
 
 - **스페이스**: [기술] InfraOps개발팀 (CL23)
 - **URL**: https://ktcloud.atlassian.net/wiki/spaces/CL23/overview
@@ -101,31 +78,33 @@ docs/
 |----------|------|
 | `docs/claude_lessons_learned/` | 코딩 스타일, 디자인 패턴 |
 | `docs/claude_automations/` | 자동화 패턴 |
-| `docs/service/*/claude_temp/` | 프로젝트별 임시 작업 파일 |
-| `claude_*.md` 파일 | 구현 가이드, 분석 문서 |
+
+---
+
+## TASKS.md 관리
+
+서비스별 `docs/service/{서비스}/TASKS.md`:
+- Jira 이슈와 연동
+- `/tasks` 커맨드로 조회
+- 로컬에서만 관리 (Confluence X)
 
 ---
 
 ## 자동 저장 규칙
 
-Claude는 작업 컨텍스트 기반 자동 결정:
-
 | 작업 유형 | 저장 위치 |
 |----------|----------|
-| 프로젝트 설계/결정 | `docs/service/luppiter/<프로젝트>/decisions/` |
-| 트러블슈팅 완료 | `docs/service/luppiter/history/` |
-| 화면 명세 | `docs/service/luppiter/luppiter_web/screens/` |
+| 임시 작업/분석 | `docs/temp/` |
 | 학습 내용 | `docs/claude_lessons_learned/<언어>/` |
 | 자동화 패턴 | `docs/claude_automations/` |
 | 팀 의사결정 | `docs/decisions/` |
-| 임시 작업 | `docs/service/luppiter/<프로젝트>/claude_temp/` |
+| **최종 문서** | **Confluence 직접 업로드** |
 
 ---
 
 ## Naming Conventions
 
 - kebab-case: `design-patterns.md`
-- 번호 없음: ~~004-design-patterns.md~~
 - Claude 전용: `claude_` prefix 사용
 - 설명적 이름 사용
 
@@ -133,5 +112,5 @@ Claude는 작업 컨텍스트 기반 자동 결정:
 
 ## Related Rules
 
-- [git-workflow.md](git-workflow.md) - Commit docs with code changes
-- [hooks.md](hooks.md) - Doc blocker hook configuration
+- [jira-workflow.md](jira-workflow.md) - Jira 워크플로우 규칙
+- [project-docs.md](project-docs.md) - 프로젝트 문서 작성 규칙
