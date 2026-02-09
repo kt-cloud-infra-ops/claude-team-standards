@@ -1,3 +1,10 @@
+---
+description: 워크스페이스 프로젝트 동기화
+model: haiku
+---
+
+> **실행 모델**: `haiku` — 이 스킬을 Task 도구로 위임 시 `model: "haiku"`를 사용하세요.
+
 # /setup-workspace - 워크스페이스 프로젝트 동기화
 
 팀원의 로컬 프로젝트들을 workspace/ 폴더에 심볼릭 링크로 연결합니다.

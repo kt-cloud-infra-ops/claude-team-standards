@@ -1,3 +1,10 @@
+---
+description: Update Codemaps
+model: sonnet
+---
+
+> **실행 모델**: `sonnet` — 이 스킬을 Task 도구로 위임 시 `model: "sonnet"`를 사용하세요.
+
 # Update Codemaps
 
 Analyze the codebase structure and update architecture documentation:

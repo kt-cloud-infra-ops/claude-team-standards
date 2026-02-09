@@ -1,3 +1,10 @@
+---
+description: 초기 환경 설정
+model: haiku
+---
+
+> **실행 모델**: `haiku` — 이 스킬을 Task 도구로 위임 시 `model: "haiku"`를 사용하세요.
+
 # 초기 환경 설정
 
 새 환경에서 프로젝트 clone 후 최초 1회 실행합니다.

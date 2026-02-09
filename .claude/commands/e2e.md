@@ -1,6 +1,9 @@
 ---
 description: Generate and run end-to-end tests with Playwright. Creates test journeys, runs tests, captures screenshots/videos/traces, and uploads artifacts.
+model: sonnet
 ---
+
+> **실행 모델**: `sonnet` — 이 스킬을 Task 도구로 위임 시 `model: "sonnet"`를 사용하세요.
 
 # E2E Command
 

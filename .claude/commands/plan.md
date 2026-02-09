@@ -1,6 +1,9 @@
 ---
 description: Restate requirements, assess risks, and create step-by-step implementation plan. WAIT for user CONFIRM before touching any code.
+model: opus
 ---
+
+> **실행 모델**: `opus` — 이 스킬을 Task 도구로 위임 시 `model: "opus"`를 사용하세요.
 
 # Plan Command
 

@@ -1,3 +1,10 @@
+---
+description: Test Coverage
+model: sonnet
+---
+
+> **실행 모델**: `sonnet` — 이 스킬을 Task 도구로 위임 시 `model: "sonnet"`를 사용하세요.
+
 # Test Coverage
 
 Analyze test coverage and generate missing tests:

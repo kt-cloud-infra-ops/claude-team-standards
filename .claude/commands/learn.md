@@ -1,3 +1,10 @@
+---
+description: /learn - Extract Reusable Patterns
+model: opus
+---
+
+> **실행 모델**: `opus` — 이 스킬을 Task 도구로 위임 시 `model: "opus"`를 사용하세요.
+
 # /learn - Extract Reusable Patterns
 
 Analyze the current session and extract any patterns worth saving as skills.

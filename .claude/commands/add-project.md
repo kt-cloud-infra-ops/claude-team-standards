@@ -1,3 +1,10 @@
+---
+description: 서비스에 새로운 프로젝트 문서 구조를 추가합니다.
+model: haiku
+---
+
+> **실행 모델**: `haiku` — 이 스킬을 Task 도구로 위임 시 `model: "haiku"`를 사용하세요.
+
 # Add Project to Service
 
 서비스에 새로운 프로젝트 문서 구조를 추가합니다.

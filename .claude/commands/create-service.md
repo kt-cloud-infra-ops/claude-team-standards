@@ -1,3 +1,10 @@
+---
+description: 새로운 서비스 문서 구조를 생성합니다.
+model: haiku
+---
+
+> **실행 모델**: `haiku` — 이 스킬을 Task 도구로 위임 시 `model: "haiku"`를 사용하세요.
+
 # Create New Service
 
 새로운 서비스 문서 구조를 생성합니다.

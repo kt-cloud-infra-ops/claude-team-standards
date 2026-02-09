@@ -17,6 +17,18 @@
 - Maximum reasoning requirements
 - Research and analysis tasks
 
+## Skill Model Mapping
+
+스킬(슬래시 커맨드) 실행 시 Task 도구로 위임할 때 아래 모델을 사용:
+
+| 모델 | 스킬 | 이유 |
+|------|------|------|
+| **haiku** | `/tasks`, `/status`, `/init`, `/setup-workspace`, `/create-service`, `/add-project` | 단순 조회/파일 생성 |
+| **sonnet** | `/code-review`, `/tdd`, `/build-fix`, `/refactor-clean`, `/test-coverage`, `/e2e`, `/update-docs`, `/update-codemaps` | 일반 코딩/분석 |
+| **opus** | `/plan`, `/learn`, `/wrap`, `/session-insights` | 심층 분석/추론 |
+
+각 스킬 파일의 frontmatter에 `model:` 필드로 명시되어 있음.
+
 ## Context Window Management
 
 Avoid last 20% of context window for:
