@@ -34,22 +34,27 @@
 ### 1.1 처리 흐름
 
 ```
-[Observability DB (GB)] → [ObservabilityEventWorker] → [x01_if_event_obs] → [프로시저] → [cmon_event_info]
-                               (EST030-GB)                  (임시 테이블)                      (본 테이블)
+[O11y REST API (GB)] ──HTTP──→ [ObservabilityEventWorker] → [x01_if_event_obs] → [프로시저] → [cmon_event_info]
+  GET ?after_seq={seq}              (EST030-GB)                  (임시 테이블)                      (본 테이블)
 
-[Observability DB (SE)] → [ObservabilityEventWorker] → [x01_if_event_obs] → [프로시저] → [cmon_event_info]
-                               (EST030-SE)                  (임시 테이블)                      (본 테이블)
+[O11y REST API (SE)] ──HTTP──→ [ObservabilityEventWorker] → [x01_if_event_obs] → [프로시저] → [cmon_event_info]
+  GET ?after_seq={seq}              (EST031-SE)                  (임시 테이블)                      (본 테이블)
 ```
 
-> **Note**: 연동 DB가 리전별로 분리됨 (현재: GB, SE). 리전 확장 시 Worker 추가 등록.
+> **Note**: 보안 정책으로 DB 직접 연동 불가 → REST API 방식으로 변경 (2026-02-09).
+> API endpoint에 seq를 전달하면 해당 seq 이후 데이터를 응답. 기존 DB seq 기반 증분과 동일 패턴.
+> 리전별 API endpoint가 분리됨 (현재: GB, SE). 리전 확장 시 Worker 추가 등록.
 
 ### 1.2 참고 파일
 
 | 파일 | 용도 |
 |------|------|
 | `EventJobWorker.java` | 추상 클래스 (상속) |
-| `ZeniusEventWorker.java` | DB 연동 패턴 참고 (동일 구조) |
+| `ZeniusEventWorker.java` | 기존 DB 연동 패턴 참고 (구조 유사, 데이터 소스만 다름) |
 | `EventWorkerFactory.java` | EST030 등록 필요 |
+
+> **변경 (2026-02-09)**: ZeniusEventWorker는 DB 직접 연동이지만, ObservabilityEventWorker는 REST API 연동.
+> JDBC 대신 HttpClient(RestTemplate/WebClient)로 데이터를 조회하고, 응답을 파싱하여 동일하게 x01_if_event_obs에 INSERT.
 
 ---
 
@@ -87,35 +92,31 @@ public enum EventWorkerFactory {
 
 > **리전 확장 시**: 새 리전 추가 시 아래 테이블에 행 추가 + EventWorkerFactory에 enum 추가
 
-| system_code | batch_bean | 리전 | DB URL | 비고 |
-|-------------|------------|------|--------|------|
-| OBS001 | EST030 | GB (경북) | jdbc:postgresql://{gb-host}:{port}/{db} | |
-| OBS002 | EST031 | SE (서울) | jdbc:postgresql://{se-host}:{port}/{db} | |
-| OBS00N | EST03N | {신규리전} | jdbc:postgresql://{new-host}:{port}/{db} | 확장 시 |
+| system_code | batch_bean | 리전 | API Endpoint | 비고 |
+|-------------|------------|------|-------------|------|
+| OBS001 | EST030 | GB (경북) | https://{gb-host}/api/v1/events | |
+| OBS002 | EST031 | SE (서울) | https://{se-host}/api/v1/events | |
+| OBS00N | EST03N | {신규리전} | https://{new-host}/api/v1/events | 확장 시 |
+
+> **Note**: C01_BATCH_EVENT의 db_url 컬럼에 API endpoint URL을 저장하여 기존 테이블 구조를 재활용.
+> db_driver, db_user, db_pwd 컬럼은 API 인증 정보(API Key 등)로 용도 변경 가능.
 
 ### 2.3 ObservabilityEventWorker 클래스
 
 ```java
 package com.ktc.luppiter.batch.task.builder;
 
-import com.ktc.luppiter.batch.common.ErrorCode;
 import com.ktc.luppiter.batch.mapper.IFEventMapper;
-import com.ktc.luppiter.utils.ResultSetUtils;
-import com.ktc.luppiter.utils.TaskDBConnection;
-import com.zaxxer.hikari.HikariDataSource;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.*;
+import org.springframework.web.client.RestTemplate;
 
-import java.sql.*;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 @Slf4j
 public class ObservabilityEventWorker extends EventJobWorker {
 
-    private HikariDataSource dataSource = null;
-    private Connection conn = null;
-    private PreparedStatement pstmt = null;
+    private final RestTemplate restTemplate = new RestTemplate();
 
     public ObservabilityEventWorker() {}
 
@@ -140,33 +141,25 @@ public class ObservabilityEventWorker extends EventJobWorker {
                 lastSeq = Long.parseLong(batchEventInfo.get("if_idx"));
             }
 
-            // 2. Observability DB 연결
-            log.debug("[{}] Observability DB 연결", getSystemCode());
-            dataSource = TaskDBConnection.getDataSource(
-                getSystemCode(),
-                getDbInfo().getDriver(),
-                getDbInfo().getUrl(),
-                getDbInfo().getUserName(),
-                getDbInfo().getPassword()
-            );
-            conn = Objects.requireNonNull(dataSource).getConnection();
+            // 2. O11y REST API 호출 (seq 기반 증분)
+            String apiUrl = getDbInfo().getUrl(); // C01_BATCH_EVENT.db_url에 API endpoint 저장
+            String requestUrl = apiUrl + "?after_seq=" + lastSeq;
+            log.debug("[{}] O11y API 호출: {}", getSystemCode(), requestUrl);
 
-            // 3. 이벤트 조회 (seq 기반 증분)
-            String query = IFEventMapper.observabilityEvent;
-            pstmt = conn.prepareStatement(query,
-                ResultSet.TYPE_SCROLL_SENSITIVE,
-                ResultSet.CONCUR_UPDATABLE);
-            pstmt.setLong(1, lastSeq);
-            pstmt.setQueryTimeout(30);
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            // TODO: API 인증 헤더 추가 (API Key 등)
+            // headers.set("Authorization", "Bearer " + getDbInfo().getPassword());
 
-            ResultSet rs = pstmt.executeQuery();
+            ResponseEntity<List> response = restTemplate.exchange(
+                requestUrl, HttpMethod.GET, new HttpEntity<>(headers), List.class);
 
-            // 4. 결과 처리
-            int transactionCount = 1000;
-            List<List<Map<String, Object>>> tempDataList =
-                ResultSetUtils.convertResultToListMap(rs, transactionCount);
+            // 3. 응답 파싱 → List<Map> 변환
+            List<Map<String, Object>> eventList = response.getBody();
 
-            if (!tempDataList.isEmpty()) {
+            if (eventList != null && !eventList.isEmpty()) {
+                // 1000건씩 분할
+                List<List<Map<String, Object>>> tempDataList = partitionList(eventList, 1000);
                 processEvents(tempDataList);
             } else {
                 log.debug("[{}] 가져올 원본 데이터가 없음", getSystemCode());
@@ -174,14 +167,21 @@ public class ObservabilityEventWorker extends EventJobWorker {
             }
 
         } catch (Exception e) {
+            log.error("[{}] O11y API 호출 실패: {}", getSystemCode(), e.getMessage());
             throw e;
-        } finally {
-            closeResources();
         }
     }
 
+    private <T> List<List<T>> partitionList(List<T> list, int size) {
+        List<List<T>> partitions = new ArrayList<>();
+        for (int i = 0; i < list.size(); i += size) {
+            partitions.add(list.subList(i, Math.min(i + size, list.size())));
+        }
+        return partitions;
+    }
+
     private void processEvents(List<List<Map<String, Object>>> tempDataList) {
-        // 상세 구현은 2.4 참고
+        // 상세 구현은 2.4 참고 (DB 방식과 동일 — temp 테이블 INSERT)
     }
 
     private void updateBatchEventTime() {
@@ -190,14 +190,6 @@ public class ObservabilityEventWorker extends EventJobWorker {
         param.put("batchBean", getSystemCode());
         param.put("if_dt", "now()");
         batchSchedulerMapper.updateBatchEventInfo(param);
-    }
-
-    private void closeResources() {
-        try {
-            if (pstmt != null) pstmt.close();
-            if (conn != null) conn.close();
-            if (dataSource != null) dataSource.close();
-        } catch (SQLException ignore) {}
     }
 }
 ```
@@ -269,33 +261,18 @@ private void processEvents(List<List<Map<String, Object>>> tempDataList) {
 
 ### 2.5 SQL 쿼리
 
-#### IFEventMapper.java에 추가
+#### IFEventMapper.java
+
+> **변경 (2026-02-09)**: DB 직접 조회 쿼리 삭제. REST API 응답을 직접 파싱하므로 SQL 쿼리 불필요.
+> API 응답 JSON 필드가 기존 DB 컬럼과 동일한 구조 (seq, event_id, type, status, region, zone, target_ip, target_name 등).
 
 ```java
-public static String observabilityEvent = """
-    SELECT
-        seq,
-        event_id,
-        type,
-        status,
-        region,
-        zone,
-        target_ip,
-        target_name,
-        target_contents,
-        event_level,
-        trigger_id,
-        stdnm,
-        occu_time,
-        r_time,
-        source,
-        dashboard_url,
-        dimensions::text as dimensions
-    FROM obs_event_view
-    WHERE seq > ?
-    ORDER BY seq ASC
-    LIMIT 5000
-    """;
+// DB 연동 시 사용하던 쿼리 (삭제됨)
+// public static String observabilityEvent = "SELECT ... FROM obs_event_view WHERE seq > ? ...";
+
+// API 방식에서는 REST 응답을 직접 List<Map>으로 변환하므로 별도 쿼리 불필요
+// insertTempEventObs (EventBatchMapper.xml)는 그대로 사용
+```
 ```
 
 #### EventBatchMapper.xml에 추가
@@ -351,15 +328,17 @@ INSERT INTO c01_batch_event (
 ) VALUES (
     'OBS001',
     'EST030',
-    'Observability 이벤트 연동',
+    'Observability 이벤트 연동 (GB)',
     'EST030',
-    'org.postgresql.Driver',
-    'jdbc:postgresql://{host}:{port}/{db}',
-    '{user}',
-    '{encrypted_password}',
+    'REST_API',                                    -- DB 드라이버 대신 식별자
+    'https://{gb-host}/api/v1/events',             -- API endpoint URL
+    '{api_user_or_empty}',                         -- API 인증용 (필요 시)
+    '{api_key_or_empty}',                          -- API Key (필요 시)
     'Y'
 );
 ```
+
+> **변경 (2026-02-09)**: db_url에 API endpoint를 저장. db_driver는 'REST_API'로 설정하여 DB/API 구분.
 
 ---
 

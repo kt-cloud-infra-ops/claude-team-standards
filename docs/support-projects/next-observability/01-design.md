@@ -65,23 +65,27 @@ NEXT에서 운영중인 Infra/Platform 이벤트 관제를 Luppiter로 통합
 
 | 연동 시스템 | Event 대상 | 연동 방법 |
 |------------|-----------|----------|
-| Observability Platform | Infra(CSW/HW/VM), Platform, Service | 1차: DB Table, 2차: API Hook |
+| Observability Platform | Infra(CSW/HW/VM), Platform, Service | REST API (seq 기반 증분) |
 | Zenius | NW | DB Table |
+
+> **변경 이력 (2026-02-09)**: 보안 정책으로 O11y DB 직접 연동 불가 → REST API 방식으로 변경.
+> API endpoint에 seq를 전달하면 해당 seq 이후 데이터를 응답하는 구조 (기존 DB 증분 조회와 동일 패턴).
 
 ### 2.2 전체 아키텍처
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────┐
-│                         Observability DB                                 │
-│                    (단일 테이블, 단일 seq)                                │
+│                    Observability REST API                                │
+│              GET /api/v1/events?after_seq={seq}                          │
+│                    (seq 기반 증분 응답)                                   │
 └─────────────────────────────────────────────────────────────────────────┘
                                     │
-                                    ▼ seq 기반 증분 연동
+                                    ▼ HTTP (seq 기반 증분)
 ┌─────────────────────────────────────────────────────────────────────────┐
 │                   luppiter_scheduler                                     │
 │  ┌─────────────────────────────────────────────────────────────────┐    │
 │  │ ObservabilityEventWorker (EST030) - 단일 Worker                  │    │
-│  │    → X01_IF_EVENT_OBS (임시 테이블)                              │    │
+│  │    HTTP Client → 응답 파싱 → X01_IF_EVENT_OBS (임시 테이블)       │    │
 │  └─────────────────────────────────────────────────────────────────┘    │
 └─────────────────────────────────────────────────────────────────────────┘
                                     │

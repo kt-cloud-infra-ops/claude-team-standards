@@ -25,7 +25,7 @@
 
 | 기능 | Zabbix | Zenius | O11y Infra | O11y Service/Platform |
 |------|--------|--------|------------|----------------------|
-| **이벤트 수집** | API 폴링 | DB 조회 (seq) | DB 조회 (seq) | DB 조회 (seq) |
+| **이벤트 수집** | API 폴링 | DB 조회 (seq) | REST API (seq) | REST API (seq) |
 | **매칭 테이블** | inventory_master | inventory_master | inventory_master | cmon_service_inventory_master |
 | **매칭 키** | target_ip | target_ip | target_ip | target_name + region |
 | **등록** | API 연동 | DB만 | DB만 | DB만 |

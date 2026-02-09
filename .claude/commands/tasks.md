@@ -1,4 +1,11 @@
+---
+description: 서비스별 해야할 일 목록을 조회합니다.
+model: haiku
+---
+
 서비스별 해야할 일 목록을 조회합니다.
+
+> **실행 모델**: `haiku` — 이 스킬을 Task 도구로 위임 시 `model: "haiku"`를 사용하세요.
 
 ## 사용법
 - `/tasks` - Jira + 로컬 TASKS.md 조회
