@@ -21,6 +21,7 @@ claude/
 │   │   ├── java/                  # Java 가이드
 │   │   ├── db/                    # DB 가이드
 │   │   └── common/                # 공통 가이드
+│   ├── support-projects/          # 지원 프로젝트 (Confluence 동기화)
 │   ├── decisions/                 # 이 저장소 운영 관련 ADR
 │   ├── ktcloud/                   # 회사 공통 가이드
 │   ├── personal/                  # 개인 문서
@@ -43,6 +44,7 @@ claude/
 
 ```
 service/{서비스}/
+├── TASKS.md            # 서비스별 해야할 일 (담당자별 섹션)
 ├── architecture/       # 서비스 아키텍처
 ├── features/           # 주요 기능 명세
 ├── sop/                # 운영 절차서
@@ -67,6 +69,7 @@ service/{서비스}/
 1. **반복 발견 → 자동화**: 반복되는 작업을 발견하면 `docs/claude_automations/`에 기록
 2. **지식 축적**: 세션에서 배운 것들을 `docs/claude_lessons_learned/`에 문서화
 3. **하위 프로젝트 통합 관리**: 여러 프로젝트의 컨텍스트를 한 곳에서 파악
+4. **기존 시스템 영향도 필수 검토**: 새 테이블/엔티티/기능 추가 시, 기존 쿼리·권한·공통코드·대시보드·엑셀 등 횡단 영향을 반드시 분석 (`.claude/rules/impact-analysis.md` 참고)
 
 ---
 
@@ -74,6 +77,8 @@ service/{서비스}/
 
 | 커맨드 | 설명 |
 |--------|------|
+| `/init` | 초기 환경 설정 (Git, Jira 인증) |
+| `/tasks [서비스\|jira\|local]` | Jira + 로컬 TASKS.md 조회 |
 | `/wrap` | 세션 마무리 (5가지 병렬 분석) |
 | `/status` | 프로젝트 현황 확인 |
 | `/session-insights` | 세션 데이터 분석 대시보드 |
@@ -136,57 +141,12 @@ service/{서비스}/
 
 ---
 
-## 진행 중인 작업
-
-### Observability 연동 프로젝트 (2026-01-19 ~)
-
-**상태**: 설계 완료, DDL 완료, 개발 전
-
-**프로젝트**: luppiter_scheduler + luppiter_web
-
-**목표**: NEXT Infra/Platform 이벤트 관제를 Luppiter로 통합
-
-**다음 작업**:
-1. ObservabilityEventWorker 개발
-2. 프로시저 작성 (p_combine_event_obs)
-3. 서비스/플랫폼 등록 화면 개발
-
-**참고 문서**:
-- 설계: `docs/service/luppiter/support-projects/next-observability/`
-- ADR: `docs/service/luppiter/projects/scheduler/decisions/003-observability-integration-design.md`
-
-**일정**: 개발 2/13, 검증 2/27
-
----
-
-### Luppiter Scheduler 성능 개선 (2026-01-28 ~)
-
-**상태**: 설계 완료, 개발 대기
-
-**프로젝트**: luppiter_scheduler
-
-**목표**: CombineEventServiceJob 성능 개선 (36s → 6~8s)
-
-**완료**:
-- [x] 임시 테이블 재생성 (2026-01-29)
-- [x] 프로시저 → Java 전환 설계 (2026-01-30)
-
-**다음 작업 (Phase 1)**:
-- [ ] AbstractEventCombineService 구현
-- [ ] ZabbixEventCombineService 구현
-- [ ] ZeniusEventCombineService 구현
-- [ ] Shadow Mode 병행 운영 검증
-
-**참고 문서**:
-- 설계서: `docs/service/luppiter/projects/scheduler/event-combine-java-migration.md`
-
----
-
 ## 문서 저장 규칙
 
 | 문서 유형 | 저장 위치 |
 |----------|----------|
 | 서비스 문서 (Confluence) | `docs/service/{서비스}/` |
+| 지원 프로젝트 문서 | `docs/support-projects/{프로젝트}/` |
 | 프로젝트 문서 | `docs/service/{서비스}/projects/{프로젝트}/` |
 | 프로젝트별 설계 결정 | `docs/service/{서비스}/projects/{프로젝트}/decisions/` |
 | 임시 작업 파일 | `docs/temp/` |

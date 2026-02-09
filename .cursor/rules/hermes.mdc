@@ -1,0 +1,26 @@
+---
+description: Hermes 메시징/알림 플랫폼 개발 가이드
+globs:
+  - "**/hermes/**"
+  - "**/hermes_*/**"
+  - "**/service/hermes/**"
+alwaysApply: false
+---
+
+# Hermes - 메시징/알림 플랫폼
+
+통합 알림 및 메시징 서비스
+
+## 핵심 문서
+
+| 문서 | 위치 |
+|------|------|
+| 아키텍처 | docs/service/hermes/architecture/ |
+| 기능 명세 | docs/service/hermes/features/ |
+| 운영 절차 | docs/service/hermes/sop/ |
+| 설계 결정 | docs/service/hermes/decisions/ |
+
+## 연동
+
+- Luppiter (이벤트 알림 발송)
+- 기타 서비스 (알림 API 제공)

@@ -6,6 +6,11 @@ workspace/*
 workspace.json
 .claude/settings.local.json
 
+# 인증 정보 (절대 커밋 금지)
+*credentials*.json
+*-credentials.json
+.jira-credentials.json
+
 # IDE
 .idea/
 
@@ -19,9 +24,16 @@ logs/
 *.bak
 *.tmp
 .DS_Store
+docs/temp/
+
+# 외부 라이브러리
+lib/
 
 # 세션 데이터
 .claude/todos/
+
+# Jira 로컬 캐시
+.claude/cache/
 
 # Gemini (개인용)
 .gemini

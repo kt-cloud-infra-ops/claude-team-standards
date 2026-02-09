@@ -151,6 +151,79 @@ jira.update_issue('TECHIOPS26-213', {
 })
 ```
 
+### A.C. 체크박스 완료 처리
+
+체크박스 상태값:
+- `state: "TODO"` → 미완료 (빈 체크박스)
+- `state: "DONE"` → 완료 (체크된 체크박스)
+
+```python
+import uuid
+
+def make_done_checklist(items: list[str]):
+    """모든 항목이 완료된 체크리스트 ADF 생성"""
+    return {
+        "type": "doc",
+        "version": 1,
+        "content": [{
+            "type": "taskList",
+            "attrs": {"localId": str(uuid.uuid4())},
+            "content": [{
+                "type": "taskItem",
+                "attrs": {"localId": str(uuid.uuid4()), "state": "DONE"},
+                "content": [{"type": "text", "text": item}]
+            } for item in items]
+        }]
+    }
+
+# A.C. 필드 완료 처리
+jira.update_issue('TECHIOPS26-236', {
+    'customfield_14516': make_done_checklist([
+        'DB만 삭제 프로세스 확정',
+        '이력 관리 방식 확정',
+        '이해관계자 리뷰 완료'
+    ])
+})
+```
+
+---
+
+## Done 태스크 A.C. 일괄 완료 처리
+
+Done 상태인 태스크들의 A.C. 체크박스를 일괄 완료 처리:
+
+```python
+def bulk_complete_ac(issue_keys: list[str]):
+    """Done 태스크들의 A.C.를 일괄 완료 처리"""
+    jira = JiraRestAPI()
+
+    for key in issue_keys:
+        # 1. 이슈 조회하여 A.C. 항목 추출
+        url = f"{jira.base_url}/rest/api/3/issue/{key}"
+        response = requests.get(url, auth=jira.auth,
+                                params={'fields': 'customfield_14516'})
+        ac = response.json()['fields'].get('customfield_14516')
+
+        if not ac:
+            continue
+
+        # 2. 기존 항목 텍스트 추출
+        items = []
+        for content in ac.get('content', []):
+            if content.get('type') == 'taskList':
+                for item in content.get('content', []):
+                    if item.get('type') == 'taskItem':
+                        for c in item.get('content', []):
+                            if c.get('type') == 'text':
+                                items.append(c.get('text', ''))
+
+        # 3. 모두 DONE 상태로 업데이트
+        jira.update_issue(key, {
+            'customfield_14516': make_done_checklist(items)
+        })
+        print(f"✓ {key}: A.C. 완료 처리됨")
+```
+
 ---
 
 ## 월별 이슈 복사 패턴
@@ -214,6 +287,22 @@ def copy_monthly_issue(source_key: str, new_month: str):
 | customfield_10014 | Epic Link |
 | customfield_10302 | Acceptance Criteria |
 | customfield_14516 | A.C.(Acceptance Criteria) |
+
+### JQL 검색 팁
+
+**주의**: `parent = EPIC-KEY` JQL 검색이 불안정할 수 있음
+
+```python
+# 비권장: JQL parent 검색
+jql = 'parent = TECHIOPS26-216'  # 결과 없을 수 있음
+
+# 권장: 개별 이슈 직접 조회
+for i in range(227, 250):
+    key = f"TECHIOPS26-{i}"
+    response = requests.get(f"{base_url}/rest/api/3/issue/{key}", ...)
+    if response.status_code == 200:
+        # 처리
+```
 
 ---
 
