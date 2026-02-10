@@ -1,3 +1,14 @@
+---
+tags:
+  - type/reference
+  - domain/jira
+  - domain/observability
+  - service/luppiter
+  - audience/team
+---
+
+> 상위: [next-observability](README.md) · [docs](../../README.md)
+
 # O11y 연동 프로젝트 - Jira 이슈 목록
 
 > 조회일: 2026-02-06

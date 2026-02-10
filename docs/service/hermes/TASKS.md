@@ -1,3 +1,10 @@
+---
+tags:
+  - type/tasks
+  - service/hermes
+  - audience/team
+---
+
 # Hermes Tasks
 
 ## @jiwoong.kim

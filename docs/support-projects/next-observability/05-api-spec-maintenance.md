@@ -1,3 +1,13 @@
+---
+tags:
+  - type/spec
+  - domain/observability
+  - service/luppiter
+  - audience/team
+---
+
+> 상위: [next-observability](README.md) · [docs](../../README.md)
+
 # O11y 메인터넌스/예외 API 스펙 협의
 
 > 작성일: 2026-02-03

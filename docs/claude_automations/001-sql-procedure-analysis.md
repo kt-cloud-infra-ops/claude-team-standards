@@ -1,3 +1,13 @@
+---
+tags:
+  - type/automation
+  - domain/db
+  - service/luppiter
+  - audience/claude
+---
+
+> 상위: [자동화 패턴](README.md)
+
 # 자동화 패턴: SQL 프로시저 분석 워크플로우
 
 ## 날짜

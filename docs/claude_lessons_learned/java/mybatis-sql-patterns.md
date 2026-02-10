@@ -1,3 +1,13 @@
+---
+tags:
+  - type/guide
+  - domain/java
+  - domain/db
+  - audience/claude
+---
+
+> 상위: [java](README.md) · [claude_lessons_learned](../README.md)
+
 # MyBatis SQL 패턴 가이드
 
 ## 1. resultType=HashMap 시 SQL alias = Map 키
@@ -53,5 +63,7 @@ SELECT target_name AS zabbix_ip,   -- 키 타입이 다름 (IP vs 서비스명)
 - `WHERE target_ip IN (...)` 조건에 빈 문자열 포함 주의
 
 ---
+
+관련: [KT Cloud 스타일](kt-cloud-style.md) · [디자인 패턴](design-patterns.md) · [SRE 코딩](sre-coding.md) · [코드 리뷰 함정](code-review-traps.md) · [DB 최적화](../db/database-optimization.md)
 
 *최종 업데이트: 2026-02-10*

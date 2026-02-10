@@ -1,3 +1,12 @@
+---
+tags:
+  - type/reference
+  - domain/jira
+  - audience/claude
+---
+
+> 상위: [ktcloud](../README.md) · [docs](../../README.md)
+
 # Jira REST API 자동화 가이드
 
 MCP Atlassian 도구의 한계로 인해 curl을 통한 직접 API 호출이 필요한 경우가 있습니다.

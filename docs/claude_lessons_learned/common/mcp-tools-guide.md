@@ -1,3 +1,12 @@
+---
+tags:
+  - type/guide
+  - domain/jira
+  - audience/claude
+---
+
+> 상위: [common](README.md) · [claude_lessons_learned](../README.md)
+
 # MCP Tools Integration Guide
 
 ## 개요

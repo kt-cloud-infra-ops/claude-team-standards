@@ -1,3 +1,10 @@
+---
+tags:
+  - type/tasks
+  - service/cmdb
+  - audience/team
+---
+
 # CMDB Tasks
 
 ## @jiwoong.kim

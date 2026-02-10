@@ -1,3 +1,12 @@
+---
+tags:
+  - type/automation
+  - domain/db
+  - audience/claude
+---
+
+> 상위: [자동화 패턴](README.md)
+
 # 자동화 패턴: SQL DDL 생성 및 정리 도구
 
 ## 날짜

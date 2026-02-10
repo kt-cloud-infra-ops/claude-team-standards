@@ -1,3 +1,12 @@
+---
+tags:
+  - type/adr
+  - domain/git
+  - audience/team
+---
+
+> 상위: [decisions](README.md) · [docs](../README.md)
+
 # ADR-001: Git 저장소 이전 (보류)
 
 ## 상태
@@ -29,3 +38,7 @@ Git 초기화는 SaaS Git 이전 후 진행
 2. 원격 저장소 연결
 3. 초기 커밋
 4. 하위 프로젝트 submodule 검토
+
+---
+
+다음: [ADR-002: CLAUDE.md 분산 구조](002-claude-md-distributed-structure.md)

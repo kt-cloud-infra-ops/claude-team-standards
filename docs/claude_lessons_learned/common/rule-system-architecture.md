@@ -1,3 +1,12 @@
+---
+tags:
+  - type/guide
+  - domain/rules
+  - audience/claude
+---
+
+> 상위: [common](README.md) · [claude_lessons_learned](../README.md)
+
 # Rule System Architecture & Synchronization
 
 ## Overview

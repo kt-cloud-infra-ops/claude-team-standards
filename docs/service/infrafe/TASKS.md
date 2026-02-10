@@ -1,3 +1,10 @@
+---
+tags:
+  - type/tasks
+  - service/infrafe
+  - audience/team
+---
+
 # InfraFE Tasks
 
 ## @jiwoong.kim

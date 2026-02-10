@@ -1,3 +1,13 @@
+---
+tags:
+  - type/automation
+  - domain/java
+  - service/luppiter
+  - audience/claude
+---
+
+> 상위: [자동화 패턴](README.md)
+
 # 자동화 패턴: Java Job 클래스 분석 체크리스트
 
 ## 날짜

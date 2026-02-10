@@ -1,3 +1,12 @@
+---
+tags:
+  - type/automation
+  - domain/sre
+  - audience/claude
+---
+
+> 상위: [자동화 패턴](README.md)
+
 # 자동화 패턴: 성능 이슈 분석 문서 템플릿
 
 ## 날짜

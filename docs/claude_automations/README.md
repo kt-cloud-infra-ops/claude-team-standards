@@ -1,3 +1,11 @@
+---
+tags:
+  - type/reference
+  - audience/claude
+---
+
+> 상위: [docs](../README.md)
+
 # 자동화 패턴 (Automation Patterns)
 
 세션 중 발견되고 반복되는 작업들을 분석하여 자동화 가능한 패턴으로 문서화합니다.

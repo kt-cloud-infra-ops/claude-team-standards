@@ -1,3 +1,12 @@
+---
+tags:
+  - type/automation
+  - domain/jira
+  - audience/claude
+---
+
+> 상위: [자동화 패턴](README.md)
+
 # Jira API 자동화 패턴
 
 MCP Atlassian 도구 한계 시 curl 직접 호출 패턴.

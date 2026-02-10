@@ -1,3 +1,10 @@
+---
+tags:
+  - type/tasks
+  - service/hera
+  - audience/team
+---
+
 # Hera Tasks
 
 ## @jiwoong.kim

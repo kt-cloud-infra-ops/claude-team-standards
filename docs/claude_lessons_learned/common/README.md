@@ -1,3 +1,12 @@
+---
+tags:
+  - type/reference
+  - domain/rules
+  - audience/claude
+---
+
+> 상위: [claude_lessons_learned](../README.md) · [docs](../../README.md)
+
 # Common Guides & Learning Resources
 
 Cross-language and cross-project guides that apply to all teams at KT Cloud.

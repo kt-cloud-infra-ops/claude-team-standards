@@ -1,3 +1,12 @@
+---
+tags:
+  - type/guide
+  - domain/jira
+  - audience/claude
+---
+
+> 상위: [common](README.md) · [claude_lessons_learned](../README.md)
+
 # Jira MCP 도구 한계와 해결책
 
 ## 문제

@@ -1,3 +1,13 @@
+---
+tags:
+  - type/guide
+  - domain/observability
+  - service/luppiter
+  - audience/team
+---
+
+> 상위: [next-observability](README.md) · [docs](../../README.md)
+
 # Observability 연동 - 구현 가이드
 
 > 작성일: 2026-01-20

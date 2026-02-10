@@ -1,3 +1,12 @@
+---
+tags:
+  - type/guide
+  - domain/rules
+  - audience/claude
+---
+
+> 상위: [common](README.md) · [claude_lessons_learned](../README.md)
+
 # 문서 아키텍처 가이드
 
 ## 개요

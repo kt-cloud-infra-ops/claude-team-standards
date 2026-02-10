@@ -1,3 +1,12 @@
+---
+tags:
+  - type/adr
+  - domain/git
+  - audience/team
+---
+
+> 상위: [decisions](README.md) · [docs](../README.md)
+
 # ADR-003: Git 운영 정책
 
 ## 상태
@@ -99,3 +108,7 @@ git push -u origin docs/add-new-command
 
 - 개인 영역은 자유롭게, 공용 영역은 리뷰를 통해 품질 관리
 - CODEOWNERS로 자동화된 리뷰어 할당
+
+---
+
+이전: [ADR-002: CLAUDE.md 분산 구조](002-claude-md-distributed-structure.md) · 다음: [ADR-004: Rules 통합](004-rules-consolidation.md)

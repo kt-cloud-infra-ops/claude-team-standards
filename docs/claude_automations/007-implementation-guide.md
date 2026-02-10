@@ -1,3 +1,12 @@
+---
+tags:
+  - type/automation
+  - domain/rules
+  - audience/claude
+---
+
+> 상위: [자동화 패턴](README.md)
+
 # 규칙 파일 자동화 구현 가이드
 
 **대상**: 규칙 파일 교차참조 및 동기화 자동화

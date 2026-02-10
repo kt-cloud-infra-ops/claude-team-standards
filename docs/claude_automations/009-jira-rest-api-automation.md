@@ -1,3 +1,12 @@
+---
+tags:
+  - type/automation
+  - domain/jira
+  - audience/claude
+---
+
+> 상위: [자동화 패턴](README.md)
+
 # 009: Jira REST API 자동화 패턴
 
 ## 개요

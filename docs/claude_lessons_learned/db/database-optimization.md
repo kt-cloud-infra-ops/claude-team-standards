@@ -1,3 +1,12 @@
+---
+tags:
+  - type/guide
+  - domain/db
+  - audience/claude
+---
+
+> 상위: [db](README.md) · [claude_lessons_learned](../README.md)
+
 # 학습: 데이터베이스 최적화 패턴 (PostgreSQL/MySQL)
 
 ## 날짜

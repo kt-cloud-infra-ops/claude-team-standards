@@ -1,3 +1,10 @@
+---
+tags:
+  - type/tasks
+  - service/luppiter
+  - audience/team
+---
+
 # Luppiter Tasks
 
 ## @jiwoong.kim

@@ -1,3 +1,11 @@
+---
+tags:
+  - type/template
+  - audience/team
+---
+
+> 상위: [ktcloud](../README.md) · [docs](../../README.md)
+
 # G-1on1 사전 준비 양식
 
 > 면담 전 아래 내용을 정리하여 리더에게 사전 전달

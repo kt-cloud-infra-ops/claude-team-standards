@@ -1,3 +1,12 @@
+---
+tags:
+  - type/guide
+  - domain/java
+  - audience/claude
+---
+
+> 상위: [java](README.md) · [claude_lessons_learned](../README.md)
+
 # 학습: KT Cloud Java 코드 스타일
 
 ## 날짜
@@ -1375,3 +1384,7 @@ public class EventInfoEntity { }
 
 - **포맷팅**: IDE 설정이 잘 적용되어 K&R 중괄호, 들여쓰기 완벽 준수
 - **Import 순서**: 대부분 올바른 순서 유지
+
+---
+
+관련: [디자인 패턴](design-patterns.md) · [SRE 코딩](sre-coding.md) · [MyBatis](mybatis-sql-patterns.md) · [코드 리뷰 함정](code-review-traps.md)

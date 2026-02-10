@@ -1,3 +1,12 @@
+---
+tags:
+  - type/automation
+  - domain/rules
+  - audience/claude
+---
+
+> 상위: [자동화 패턴](README.md)
+
 # 규칙 파일 교차참조 자동화
 
 **작성일**: 2026-01-30

@@ -1,3 +1,12 @@
+---
+tags:
+  - type/guide
+  - domain/testing
+  - audience/claude
+---
+
+> 상위: [common](README.md) · [claude_lessons_learned](../README.md)
+
 # 학습: Playwright E2E 테스트 작성 패턴 및 베스트 프랙티스
 
 ## 날짜

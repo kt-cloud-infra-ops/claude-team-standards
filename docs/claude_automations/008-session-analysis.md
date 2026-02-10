@@ -1,3 +1,12 @@
+---
+tags:
+  - type/automation
+  - domain/rules
+  - audience/claude
+---
+
+> 상위: [자동화 패턴](README.md)
+
 # 세션 작업 분석 보고서
 
 **분석 대상**: 2026-01-30 Claude Code 규칙 파일 정비 세션

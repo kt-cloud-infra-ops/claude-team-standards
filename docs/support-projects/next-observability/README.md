@@ -1,3 +1,13 @@
+---
+tags:
+  - type/reference
+  - domain/observability
+  - service/luppiter
+  - audience/team
+---
+
+> 상위: [docs](../../README.md)
+
 # Observability 연동 설계
 
 ## 개요
@@ -21,6 +31,13 @@ NEXT Infra/Platform 이벤트 관제를 Luppiter로 통합하는 프로젝트 �
 | [04-functional-spec.md](04-functional-spec.md) | 기능별 상세 설계 |
 | [05-api-spec-maintenance.md](05-api-spec-maintenance.md) | 메인터넌스 API 스펙 협의 |
 | [jira-issues.md](jira-issues.md) | Jira 이슈 목록 및 멀티리전 영향도 |
+
+### Scheduler: DB→API 전환
+
+| 문서 | 설명 |
+|------|------|
+| [06-scheduler-api-migration.md](06-scheduler-api-migration.md) | DB→API 변경 설계 + 영향도 분석 |
+| [06-01-implementation-guide.md](06-01-implementation-guide.md) | 상세 개발 가이드 (복붙 수준) |
 
 ### 구현 가이드
 

@@ -1,3 +1,11 @@
+---
+tags:
+  - type/template
+  - audience/team
+---
+
+> 상위: [decisions](README.md) · [docs](../README.md)
+
 # ADR-000: 제목
 
 ## 상태

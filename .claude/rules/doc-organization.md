@@ -110,6 +110,69 @@ docs/
 
 ---
 
+## Obsidian 태그 (YAML Frontmatter)
+
+### 필수: 모든 docs/**/*.md 파일에 YAML frontmatter 태그 포함
+
+```yaml
+---
+tags:
+  - type/{유형}          # 필수 1개
+  - domain/{도메인}      # 해당 시
+  - service/{서비스}     # 해당 시
+  - audience/{대상}      # 필수 1개
+  - personal/{사번}      # audience/personal인 경우
+---
+```
+
+### 태그 분류
+
+#### type/ (필수, 1개)
+
+| 태그 | 용도 |
+|------|------|
+| `type/guide` | 가이드/학습 문서 |
+| `type/adr` | 아키텍처 결정 기록 |
+| `type/automation` | 자동화 패턴 |
+| `type/reference` | 참조/허브 문서 |
+| `type/template` | 템플릿 |
+| `type/worklog` | 작업일지 |
+| `type/tasks` | 태스크 목록 |
+| `type/spec` | 설계/스펙 문서 |
+
+#### domain/ (해당 시, 복수 가능)
+
+`domain/java`, `domain/db`, `domain/jira`, `domain/git`, `domain/testing`, `domain/sre`, `domain/observability`, `domain/rules`
+
+#### service/ (해당 시, 복수 가능)
+
+`service/luppiter`, `service/gaia`, `service/hera`, `service/infrafe`, `service/cmdb`, `service/hermes`
+
+#### audience/ (필수, 1개)
+
+| 태그 | 용도 |
+|------|------|
+| `audience/claude` | Claude 전용 (`claude_` 접두사 문서) |
+| `audience/team` | 팀 공유 문서 |
+| `audience/personal` | 개인 문서 |
+
+#### personal/ (audience/personal인 경우 필수)
+
+`personal/{사번}` — 개인 문서를 사번으로 그룹화 (예: `personal/82253890`)
+
+### 네비게이션 링크
+
+모든 문서에 breadcrumb 형태 상위 링크 포함:
+
+```markdown
+> 상위: [폴더명](README.md) · [상위폴더](../README.md)
+```
+
+- frontmatter 바로 다음 줄에 위치
+- 최상위 `docs/README.md`까지 도달 가능하도록 체인 연결
+
+---
+
 ## Related Rules
 
 - [jira-workflow.md](jira-workflow.md) - Jira 워크플로우 규칙

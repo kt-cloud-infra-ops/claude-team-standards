@@ -1,3 +1,12 @@
+---
+tags:
+  - type/reference
+  - domain/jira
+  - audience/team
+---
+
+> 상위: [ktcloud](../README.md) · [docs](../../README.md)
+
 전사 필수 규칙과 권장 가이드 기준으로 본부/담당/팀의 Jira 사용 규칙을 Confluence Page에 수립
 실행강화TF 기준을 사례로 공유
 전사 필수 규칙 & 권장 가이드

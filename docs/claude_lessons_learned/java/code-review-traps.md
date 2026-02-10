@@ -1,3 +1,12 @@
+---
+tags:
+  - type/guide
+  - domain/java
+  - audience/claude
+---
+
+> 상위: [java](README.md) · [claude_lessons_learned](../README.md)
+
 # Java 코드 리뷰 함정 패턴
 
 ## 1. List.of / Map.of 괄호 위치 함정
@@ -47,5 +56,7 @@ List.of(Map.of("active_since", startEpoch, "active_till", endEpoch))
 - 검증 후 설계 문서에 검증일자와 실제 라인번호 갱신
 
 ---
+
+관련: [KT Cloud 스타일](kt-cloud-style.md) · [디자인 패턴](design-patterns.md) · [SRE 코딩](sre-coding.md) · [MyBatis](mybatis-sql-patterns.md)
 
 *최종 업데이트: 2026-02-10*

@@ -1,3 +1,12 @@
+---
+tags:
+  - type/guide
+  - domain/jira
+  - audience/claude
+---
+
+> 상위: [common](README.md) · [claude_lessons_learned](../README.md)
+
 # Jira 관리 규칙
 
 ## 핵심 원칙

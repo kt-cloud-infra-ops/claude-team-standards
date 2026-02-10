@@ -1,3 +1,12 @@
+---
+tags:
+  - type/adr
+  - domain/rules
+  - audience/team
+---
+
+> 상위: [decisions](README.md) · [docs](../README.md)
+
 # ADR-004: 개인 rules를 프로젝트 rules로 통합
 
 ## 상태
@@ -38,3 +47,7 @@ Claude Code rules 파일이 두 곳에 분산되어 있었음:
 - 중복 0줄 (이전 ~230줄)
 - 팀원이 `git pull`하면 rules 자동 적용
 - 규칙 변경 시 `.claude/rules/` 수정 → Git commit으로 팀 전파
+
+---
+
+이전: [ADR-003: Git 운영 정책](003-git-workflow.md)

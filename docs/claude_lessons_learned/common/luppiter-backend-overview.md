@@ -1,3 +1,13 @@
+---
+tags:
+  - type/guide
+  - domain/java
+  - service/luppiter
+  - audience/claude
+---
+
+> 상위: [common](README.md) · [claude_lessons_learned](../README.md)
+
 # 학습: Luppiter 백엔드 프로젝트들
 
 ## 날짜

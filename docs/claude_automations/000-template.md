@@ -1,3 +1,11 @@
+---
+tags:
+  - type/template
+  - audience/claude
+---
+
+> 상위: [자동화 패턴](README.md)
+
 # 자동화 패턴: 제목
 
 ## 날짜

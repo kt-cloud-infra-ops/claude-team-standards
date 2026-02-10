@@ -1,3 +1,10 @@
+---
+tags:
+  - type/tasks
+  - service/gaia
+  - audience/team
+---
+
 # Gaia Tasks
 
 ## @jiwoong.kim

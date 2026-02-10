@@ -1,3 +1,11 @@
+---
+tags:
+  - type/guide
+  - audience/team
+---
+
+> 상위: [ktcloud](../README.md) · [docs](../../README.md)
+
 # Growth 1on1 (G-1on1) 가이드
 
 ## 목적

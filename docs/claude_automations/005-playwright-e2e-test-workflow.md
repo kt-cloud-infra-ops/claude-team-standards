@@ -1,3 +1,12 @@
+---
+tags:
+  - type/automation
+  - domain/testing
+  - audience/claude
+---
+
+> 상위: [자동화 패턴](README.md)
+
 # 자동화 패턴: Playwright E2E 테스트 워크플로우
 
 ## 날짜

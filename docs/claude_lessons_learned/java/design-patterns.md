@@ -1,3 +1,12 @@
+---
+tags:
+  - type/guide
+  - domain/java
+  - audience/claude
+---
+
+> 상위: [java](README.md) · [claude_lessons_learned](../README.md)
+
 # 디자인 패턴 가이드
 
 > KT Cloud Java 프로젝트 공통 가이드
@@ -294,3 +303,7 @@ if (status.equals(STATUS_COMPLETED)) { ... }
 - 새로운 기능 설계 시 적합한 패턴 검토
 - 코드 리뷰 시 패턴 적용 가능 여부 확인
 - 리팩토링 시 Anti-Pattern 제거
+
+---
+
+관련: [KT Cloud 스타일](kt-cloud-style.md) · [SRE 코딩](sre-coding.md) · [MyBatis](mybatis-sql-patterns.md) · [코드 리뷰 함정](code-review-traps.md)

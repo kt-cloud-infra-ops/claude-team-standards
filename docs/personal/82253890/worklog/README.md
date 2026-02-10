@@ -1,3 +1,12 @@
+---
+tags:
+  - type/reference
+  - audience/personal
+  - personal/82253890
+---
+
+> 상위: [personal](../../README.md) · [docs](../../../README.md)
+
 # 작업일지
 
 ## 구조

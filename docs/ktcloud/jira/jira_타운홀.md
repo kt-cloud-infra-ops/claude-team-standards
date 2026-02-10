@@ -1,4 +1,13 @@
-0. 
+---
+tags:
+  - type/reference
+  - domain/jira
+  - audience/team
+---
+
+> 상위: [ktcloud](../README.md) · [docs](../../README.md)
+
+0.
 1. 목차
 
 

@@ -1,3 +1,13 @@
+---
+tags:
+  - type/spec
+  - domain/observability
+  - service/luppiter
+  - audience/team
+---
+
+> 상위: [next-observability](README.md) · [docs](../../README.md)
+
 # Observability 연동 설계
 
 ## 개요

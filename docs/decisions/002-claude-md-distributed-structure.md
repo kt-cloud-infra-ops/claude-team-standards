@@ -1,3 +1,12 @@
+---
+tags:
+  - type/adr
+  - domain/rules
+  - audience/team
+---
+
+> 상위: [decisions](README.md) · [docs](../README.md)
+
 # ADR-002: CLAUDE.md 프로젝트별 분산 구조
 
 ## 상태
@@ -71,3 +80,7 @@
 
 ## 참고
 - 관련 학습: `docs/learnings/006-documentation-architecture.md`
+
+---
+
+이전: [ADR-001: Git 이전 (보류)](001-git-migration-pending.md) · 다음: [ADR-003: Git 운영 정책](003-git-workflow.md)

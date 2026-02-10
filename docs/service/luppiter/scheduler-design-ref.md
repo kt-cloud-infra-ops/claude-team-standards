@@ -1,3 +1,14 @@
+---
+tags:
+  - type/reference
+  - domain/java
+  - domain/observability
+  - service/luppiter
+  - audience/team
+---
+
+> 상위: [service](../README.md) · [docs](../../README.md)
+
 # Luppiter Scheduler 설계문서·Jira 참조
 
 Confluence 설계문서와 Jira 티켓 확인용. **설계문서 업데이트가 필요한 경우** 이 목록을 기준으로 Confluence/Jira에서 반영 여부 확인.

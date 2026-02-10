@@ -84,7 +84,9 @@ Jira:
 - 사용자: 홍길동(InfraOps개발팀)
 - 이메일: hong.gildong@kt.com
 
-이제 /tasks 로 할 일을 확인하세요.
+다음 단계:
+- /setup-workspace : 하위 프로젝트 심볼릭 링크 연결
+- /tasks : 할 일 확인
 ```
 
 ---
