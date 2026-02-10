@@ -14,6 +14,9 @@ workspace.json
 # IDE
 .idea/
 
+# Obsidian
+.obsidian/
+
 # 외부 저장소
 everything-claude-code/
 

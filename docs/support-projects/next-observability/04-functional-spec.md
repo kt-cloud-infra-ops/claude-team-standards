@@ -423,19 +423,19 @@ EventWorkerFactory
 
 ### 9.2 영향 범위 요약
 
-| 우선순위 | 파일 | 화면/기능 | UNION 대상 쿼리 수 |
-|:--------:|------|----------|:-----------------:|
-| 🔴 P0 | sql-dashboard.xml | 관제 대시보드 | 7 |
-| 🔴 P0 | sql-evt.xml | 이벤트 상황관리/이력/인시던트 | 5~7 |
-| 🔴 P0 | MaintenanceAlarmServiceMapper.xml | 메인터넌스 알람 (Scheduler) | 5 |
-| 🔴 P0 | ExceptionEventAlarmServiceMapper.xml | 예외 알람 (Scheduler) | 1 |
-| 🟡 P1 | sql-cmm.xml | 공통 관제영역 조회 | 1 |
-| 🟡 P1 | sql-evt-cmm.xml | 예외/메인터넌스 공통 장비 조회 | 1 |
-| 🟡 P1 | sql-icd.xml | 인시던트 검색 조건 | 2 |
-| 🟡 P1 | morning_report (Python) | 모닝리포트 집계 | 2 |
-| 🟢 P2 | sql-stt.xml | 서비스는 별도 화면 분리 | - |
-| 🟢 P2 | sql-api.xml | Infra 전용 API | - |
-| 🟢 P2 | sql-zab.xml | Zabbix 전용 | - |
+| 우선순위 | 파일 | 화면/기능 | UNION 대상 쿼리 수 | 검증 (2/10) |
+|:--------:|------|----------|:-----------------:|:-----------:|
+| 🔴 P0 | sql-dashboard.xml | 관제 대시보드 | 7 | ✅ 7개 확인 |
+| 🔴 P0 | sql-evt.xml | 이벤트 상황관리/이력/인시던트 | 7 | ✅ 5+2 확인 |
+| 🔴 P0 | MaintenanceAlarmServiceMapper.xml | 메인터넌스 알람 (Scheduler) | 1 | ✅ 1개 확인 (파일 203줄) |
+| 🔴 P0 | ExceptionEventAlarmServiceMapper.xml | 예외 알람 (Scheduler) | 1 | ✅ 1개 확인 |
+| 🟡 P1 | sql-cmm.xml | 공통 관제영역 조회 | 1 | ✅ 확인 |
+| 🟡 P1 | sql-evt-cmm.xml | 예외/메인터넌스 공통 장비 조회 | 1 | ✅ 확인 |
+| 🟡 P1 | sql-icd.xml | 인시던트 검색 조건 | 2 | ✅ 확인 |
+| 🟡 P1 | morning_report (Python) | 모닝리포트 집계 | 2 | 미검증 |
+| 🟢 P2 | sql-stt.xml | 서비스는 별도 화면 분리 | - | 대상 외 |
+| 🟢 P2 | sql-api.xml | Infra 전용 API | - | 대상 외 |
+| 🟢 P2 | sql-zab.xml | Zabbix 전용 | - | 대상 외 |
 
 ---
 
@@ -455,28 +455,29 @@ EventWorkerFactory
 
 | 쿼리 ID/용도 | 라인 | 현재 JOIN | 영향 |
 |-------------|------|----------|------|
-| 실시간 이벤트 목록 | L384-388 | `INNER JOIN inventory_master B ON A.target_ip = B.zabbix_ip` | 서비스 이벤트에 인벤토리 정보 안 붙음 |
-| 이벤트 이력 조회 | L613-617 | `INNER JOIN inventory_master B` | 이력에서 서비스 이벤트 정보 누락 |
-| 이벤트 정제관리 | L1122-1126 | `LEFT JOIN inventory_master B` | 정제관리에서 서비스 이벤트 누락 |
-| 이벤트 이력 V2 | L1271-1275 | `LEFT JOIN inventory_master B` | 서비스 이벤트 이력 누락 |
-| 인시던트 이벤트 | L1500-1504 | `LEFT JOIN inventory_master B` | 인시던트에서 서비스 이벤트 없음 |
+| 실시간 이벤트 목록 | L387 | `INNER JOIN inventory_master B ON A.target_ip = B.zabbix_ip` | 서비스 이벤트에 인벤토리 정보 안 붙음 |
+| 이벤트 이력 조회 | L616 | `INNER JOIN inventory_master B` | 이력에서 서비스 이벤트 정보 누락 |
+| 이벤트 정제관리 | L1125 | `LEFT JOIN inventory_master B` | 정제관리에서 서비스 이벤트 누락 |
+| 이벤트 이력 V2 | L1274 | `LEFT JOIN inventory_master B` | 서비스 이벤트 이력 누락 |
+| 인시던트 이벤트 | L1503 | `LEFT JOIN inventory_master B` | 인시던트에서 서비스 이벤트 없음 |
+| 인벤토리 단건 조회 | L1681 | `from inventory_master im left outer join inventory_master_sub ims` | 서비스 인벤토리 단건 조회 누락 |
+| 배치이벤트 system_code 매핑 | L1693 | `join inventory_master im on im.zabbix_ip = cei.target_ip` | 서비스 이벤트 배치 처리 누락 |
 
 ### 9.5 P0 상세 — Scheduler Mapper
 
-**MaintenanceAlarmServiceMapper.xml**:
+**MaintenanceAlarmServiceMapper.xml** (파일 총 203줄):
+
+> ⚠️ 2/10 검증: 초기 분석에서 5개로 기재했으나 실제 파일 확인 결과 1개만 해당. L431, L696, L740, L857은 존재하지 않는 라인.
 
 | 쿼리 용도 | 라인 | 영향 |
 |-----------|------|------|
-| 메인터넌스 알람 대상 inventory 조회 | L96-102 | 서비스 메인터넌스 알람 발송 안됨 |
-| 메인터넌스 이력-인벤토리 매핑 | L431-447 | 서비스 메인터넌스 이력 누락 |
-| 메인터넌스 대상-인벤토리 매핑 | L696-702, L740-755 | 서비스 대상 매핑 안됨 |
-| 운영담당부서 매핑 | L857-861 | 서비스 인벤토리 운영부서 매핑 안됨 |
+| selectMaintenanceHostList — 메인터넌스 호스트 조회 | L99-101 | `join inventory_master b` + `left join inventory_master_sub c` — 서비스 메인터넌스 대상 매핑 안됨 |
 
 **ExceptionEventAlarmServiceMapper.xml**:
 
 | 쿼리 용도 | 라인 | 영향 |
 |-----------|------|------|
-| 예외 상세-인벤토리 매핑 | L61-66 | 서비스 예외 대상 매핑 안됨 |
+| 예외 상세-인벤토리 매핑 | L64-65 | `join inventory_master b` + `left join inventory_master_sub c` — 서비스 예외 대상 매핑 안됨 |
 
 ---
 
@@ -532,6 +533,16 @@ SELECT target_name, service_nm, ... FROM cmon_service_inventory_master WHERE use
 
 장점: 기존 쿼리에서 `inventory_master` → `v_inventory_all`로 교체만 하면 됨.
 단점: inventory_master_sub JOIN 처리, 성능 검증 필요.
+
+### 9.9 검증 노트 (2026-02-10)
+
+- **검증 방법**: 실제 소스 파일 grep으로 `inventory_master` 참조 전수 확인
+- **결정 사항**: 통합 뷰 대신 **각 쿼리에 UNION ALL 개별 적용** 방식 채택
+- **주요 수정**:
+  - MaintenanceAlarmServiceMapper.xml: 5개 → **1개** (파일 203줄, 초기 분석 라인 번호 오류)
+  - sql-evt.xml: 5개 → **7개** (단건 조회 L1681, 배치이벤트 매핑 L1693 추가 발견)
+- **미검증**: morning_report (Python) — P1이므로 별도 확인 예정
+- **관련 LUPR**: LUPR-699 (WEB 쿼리 수정), LUPR-700 (Scheduler 쿼리 수정)
 
 ---
 

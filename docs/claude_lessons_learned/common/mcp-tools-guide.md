@@ -107,6 +107,25 @@ Jira의 description, 댓글 등은 ADF 형식을 사용합니다.
 
 - `state`: `"TODO"` (미완료) 또는 `"DONE"` (완료)
 
+### 프로젝트 타입별 ADF 지원 차이 (2026-02-10 확인)
+
+| 기능 | TECHIOPS26 (팀관리형) | LUPR (회사관리형) | Confluence |
+|------|:---:|:---:|:---:|
+| 코멘트 taskList | O | **X** (INVALID_INPUT) | - |
+| 코멘트 bulletList | O | O | - |
+| 코멘트 codeBlock | O | O | - |
+| ac:task-list 매크로 | - | - | O |
+
+**LUPR 대안**: bulletList + ☐/☑ 이모지로 체크박스 표현
+
+```json
+{"type": "listItem", "content": [
+  {"type": "paragraph", "content": [
+    {"type": "text", "text": "☐ 체크 항목"}
+  ]}
+]}
+```
+
 ### 기본 구조
 
 ```json
