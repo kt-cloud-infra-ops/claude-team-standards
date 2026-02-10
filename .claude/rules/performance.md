@@ -29,6 +29,17 @@
 
 각 스킬 파일의 frontmatter에 `model:` 필드로 명시되어 있음.
 
+## Task 위임 모델 원칙
+
+스킬 외에도 Task 도구로 작업을 위임할 때 동일 원칙 적용:
+
+| 작업 유형 | 모델 | 예시 |
+|----------|------|------|
+| 외부 API 조회 → 로컬 저장 | haiku | Confluence 동기화, Jira 조회, 인벤토리 갱신 |
+| 데이터 분석/편집/의사결정 | sonnet/opus | 내용 검토, 문서 작성, 코드 변경점 분석 |
+
+**혼합 사용 패턴**: 조회(haiku) → 분석/편집(메인 모델) → 업로드(haiku)
+
 ## Context Window Management
 
 Avoid last 20% of context window for:

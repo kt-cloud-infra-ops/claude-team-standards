@@ -99,6 +99,8 @@ service/{서비스}/
 | luppiter_morning_report | 모닝 리포트 (Python) | O |
 | test_luppiter_inv_api | 인벤토리 API (Spring Boot) | O |
 | luppiter_web_e2e | E2E 테스트 (Playwright) | - |
+| message_bridge | Slack 메시지 프록시 (Spring Boot 2.7) | - |
+| test_slack_send | Block Kit 메시지 테스트 (Spring Boot 3.2) | - |
 
 ---
 
