@@ -5,7 +5,7 @@ tags:
   - personal/82253890
 ---
 
-> 상위: [personal](../../README.md) · [docs](../../../README.md)
+> 상위: [personal](../README.md) · [docs](../../README.md)
 
 # 작업일지
 

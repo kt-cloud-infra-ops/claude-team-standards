@@ -582,14 +582,35 @@ GROUP BY status;
 
 > 대상: luppiter_web 예외 관리 화면
 > 특징: API 연동 없음, DB 자체 관리
+> 이벤트 목록: `cmon_event_info`에서 DISTINCT 조회 (발생 이력 기반, Zabbix API trigger 방식과 다름)
+
+**이벤트 목록 조회 쿼리 (참고)**:
+```sql
+-- Infra: 해당 IP에서 발생한 이벤트 목록
+SELECT DISTINCT target_item, trigger_id
+FROM cmon_event_info
+WHERE target_ip = :target_ip
+  AND source IN ('mimir', 'loki')
+  AND type = 'infra';
+
+-- Service/Platform: 해당 서비스에서 발생한 이벤트 목록
+-- 참고: target_name → cmon_event_info.hostname 매핑 (01-design.md §4.2)
+SELECT DISTINCT target_item, trigger_id
+FROM cmon_event_info
+WHERE hostname = :target_name
+  AND source IN ('mimir', 'loki')
+  AND type = :svc_type;
+```
 
 ### TC-EXC-001: Infra 예외 등록
 
 | 항목 | 내용 |
 |------|------|
 | **목적** | O11y Infra 대상 예외 등록 |
-| **실행** | 예외 등록 → 타입: Infra(O11y) → 대상: 10.2.14.55 → 이벤트: CPU 사용량 |
+| **사전조건** | §3 프로시저 완료 (cmon_event_info에 10.2.14.55 이벤트 존재) |
+| **실행** | 예외 등록 → 타입: Infra(O11y) → 대상: 10.2.14.55 선택 → 이벤트 목록에서 "CPU 사용량" 선택 |
 | **기대결과** | |
+| | 이벤트 목록: `cmon_event_info`에서 10.2.14.55의 DISTINCT 이벤트만 표시 |
 | | DB: `cmon_exception_event` INSERT |
 | | DB: `cmon_exception_event_detail` INSERT (기존 테이블) |
 | | 해당 IP의 해당 trigger 이벤트가 향후 필터링됨 |
@@ -599,8 +620,10 @@ GROUP BY status;
 | 항목 | 내용 |
 |------|------|
 | **목적** | Service 대상 예외 등록 (신규 테이블 사용) |
-| **실행** | 예외 등록 → 타입: Service → 대상: next-iam-service (DX-G-SE) → 이벤트 선택 |
+| **사전조건** | §3 프로시저 완료 (cmon_event_info에 next-iam-service 이벤트 존재) |
+| **실행** | 예외 등록 → 타입: Service → 대상: next-iam-service (DX-G-SE) → 이벤트 목록에서 선택 |
 | **기대결과** | |
+| | 이벤트 목록: `cmon_event_info`에서 next-iam-service의 DISTINCT 이벤트만 표시 |
 | | DB: `cmon_exception_event` INSERT |
 | | DB: `cmon_exception_service_detail` INSERT (**신규 테이블**) |
 | | `svc_type = 'service'`, `service_nm`, `region` 저장 |
@@ -610,8 +633,10 @@ GROUP BY status;
 | 항목 | 내용 |
 |------|------|
 | **목적** | Platform 대상 예외 등록 |
-| **실행** | 예외 등록 → 타입: Platform → 대상: next-observability (DX-G-GB) |
+| **사전조건** | §3 프로시저 완료 (cmon_event_info에 next-observability 이벤트 존재) |
+| **실행** | 예외 등록 → 타입: Platform → 대상: next-observability (DX-G-GB) → 이벤트 목록에서 선택 |
 | **기대결과** | |
+| | 이벤트 목록: `cmon_event_info`에서 next-observability의 DISTINCT 이벤트만 표시 |
 | | DB: `cmon_exception_service_detail` INSERT |
 | | `svc_type = 'platform'` |
 
