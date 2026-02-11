@@ -1,8 +1,8 @@
 ---
 tags:
   - type/reference
-  - domain/observability
   - service/luppiter
+  - service/luppiter/o11y
   - audience/team
 ---
 
@@ -39,6 +39,12 @@ NEXT Infra/Platform 이벤트 관제를 Luppiter로 통합하는 프로젝트 �
 | [06-scheduler-api-migration.md](06-scheduler-api-migration.md) | DB→API 변경 설계 + 영향도 분석 |
 | [06-01-implementation-guide.md](06-01-implementation-guide.md) | 상세 개발 가이드 (복붙 수준) |
 
+### 테스트
+
+| 문서 | 설명 |
+|------|------|
+| [07-integration-test.md](07-integration-test.md) | 통합테스트 시나리오 (Mock 서버 기반) |
+
 ### 구현 가이드
 
 | 문서 | 설명 |
@@ -72,4 +78,4 @@ NEXT Infra/Platform 이벤트 관제를 Luppiter로 통합하는 프로젝트 �
 
 ---
 
-**최종 업데이트**: 2026-02-03
+**최종 업데이트**: 2026-02-11
