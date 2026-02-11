@@ -22,11 +22,11 @@ tags:
 ## 개인 문서 (82253890)
 
 ### 성장
-- [[docs/personal/82253890/idp-2026|IDP 2026]]
-- [[docs/personal/82253890/g-1on1-2026-q1|1on1 2026 Q1]]
+- [[docs/personal/idp/82253890/idp-2026|IDP 2026]]
+- [[docs/personal/1on1/82253890/g-1on1-2026-q1|1on1 2026 Q1]]
 
 ### 업무
-- [[docs/personal/2026-02-내제화-작업목록|2월 내제화 작업목록]]
+- [[docs/personal/tasks/82253890/2026-02-내제화-작업목록|2월 내제화 작업목록]]
 
 ### 작업일지
-- [[docs/personal/82253890/worklog/2026/02/02-10|2026-02-10 작업일지]]
+- [[docs/personal/worklog/2026/02/82253890/02-10|2026-02-10 작업일지]]

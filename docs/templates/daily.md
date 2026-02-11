@@ -5,7 +5,7 @@ tags:
   - personal/{{sabun}}
 ---
 
-> 상위: [{{month}}월](README.md) · [worklog](../README.md)
+> 상위: [worklog](../../../README.md) · [personal](../../../../README.md)
 
 # {{date}} 작업일지
 

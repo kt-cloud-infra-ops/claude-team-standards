@@ -299,10 +299,11 @@ EventWorkerFactory
 |--------|---------------|-----------------|----------|
 | Zabbix | inventory_master | Zabbix API (trigger) | DB 자체 관리 |
 | Zenius | inventory_master | 인벤토리 기반 (DB) | DB 자체 관리 |
-| O11y Infra | inventory_master | 인벤토리 + API | DB 자체 관리 |
-| O11y Service/Platform | cmon_service_inventory_master | 인벤토리 + API | DB 자체 관리 |
+| O11y Infra | inventory_master | cmon_event_info DISTINCT | DB 자체 관리 |
+| O11y Service/Platform | cmon_service_inventory_master | cmon_event_info DISTINCT | DB 자체 관리 |
 
 > **중요**: 예외는 모든 시스템이 DB 자체 관리 (API 연동 X)
+> **O11y 이벤트 목록**: Zabbix와 달리 API가 아닌 `cmon_event_info`에서 실제 발생한 이벤트만 DISTINCT 조회. 해당 호스트/서비스에 발생 이력이 있는 이벤트만 예외 등록 가능.
 
 ### 7.2 처리 흐름
 
@@ -327,7 +328,9 @@ EventWorkerFactory
        ├─ [DB] 장비 대상 조회
        │       - Infra: inventory_master
        │       - Service/Platform: cmon_service_inventory_master
-       └─ [DB + O11y API] 이벤트 목록 조회
+       └─ [DB] 이벤트 목록 조회 (cmon_event_info DISTINCT)
+       │       - 해당 장비/서비스에서 실제 발생한 이벤트만 표시
+       │       - Zabbix(API trigger 전체)와 달리 발생 이력 기반
        │
        ▼
 [사용자] 예외 대상 선택
