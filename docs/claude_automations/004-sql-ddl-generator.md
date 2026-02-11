@@ -1,7 +1,7 @@
 ---
 tags:
   - type/automation
-  - domain/db
+  - domain/db/schema
   - audience/claude
 ---
 

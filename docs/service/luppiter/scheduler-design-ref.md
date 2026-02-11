@@ -1,7 +1,7 @@
 ---
 tags:
   - type/reference
-  - domain/java
+  - domain/java/spring
   - service/luppiter
   - service/luppiter/o11y
   - audience/team

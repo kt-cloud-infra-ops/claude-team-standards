@@ -1,7 +1,7 @@
 ---
 tags:
   - type/guide
-  - domain/jira
+  - domain/jira/workflow
   - audience/claude
 ---
 

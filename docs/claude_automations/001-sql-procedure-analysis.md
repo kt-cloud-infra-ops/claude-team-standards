@@ -1,7 +1,7 @@
 ---
 tags:
   - type/automation
-  - domain/db
+  - domain/db/query
   - service/luppiter
   - audience/claude
 ---

@@ -1,8 +1,8 @@
 ---
 tags:
   - type/guide
-  - domain/java
-  - domain/db
+  - domain/java/mybatis
+  - domain/db/query
   - audience/claude
 ---
 

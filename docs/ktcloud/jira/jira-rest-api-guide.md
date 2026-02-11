@@ -1,7 +1,7 @@
 ---
 tags:
   - type/reference
-  - domain/jira
+  - domain/jira/api
   - audience/claude
 ---
 

@@ -1,8 +1,8 @@
 ---
 tags:
   - type/spec
-  - domain/observability
   - service/luppiter
+  - service/luppiter/o11y
   - audience/team
 ---
 
