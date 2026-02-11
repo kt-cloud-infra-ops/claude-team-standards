@@ -107,10 +107,10 @@ FROM #domain/jira
 SORT file.folder, file.name
 ```
 
-### Observability
+### Observability (Luppiter)
 ```dataview
 TABLE file.folder as "위치"
-FROM #domain/observability
+FROM #service/luppiter/o11y
 SORT file.folder, file.name
 ```
 

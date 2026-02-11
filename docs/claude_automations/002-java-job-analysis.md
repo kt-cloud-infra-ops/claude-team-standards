@@ -1,7 +1,7 @@
 ---
 tags:
   - type/automation
-  - domain/java
+  - domain/java/spring
   - service/luppiter
   - audience/claude
 ---
