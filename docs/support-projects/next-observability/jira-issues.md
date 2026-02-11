@@ -2,8 +2,8 @@
 tags:
   - type/reference
   - domain/jira
-  - domain/observability
   - service/luppiter
+  - service/luppiter/o11y
   - audience/team
 ---
 

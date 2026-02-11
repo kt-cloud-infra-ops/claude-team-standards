@@ -127,26 +127,44 @@ tags:
 
 ### 태그 분류
 
+태그는 슬래시(`/`)로 계위를 표현하며 **뎁스 제한 없음**. 상위 태그 검색 시 하위 태그 포함.
+
 #### type/ (필수, 1개)
 
-| 태그 | 용도 |
-|------|------|
-| `type/guide` | 가이드/학습 문서 |
-| `type/adr` | 아키텍처 결정 기록 |
-| `type/automation` | 자동화 패턴 |
-| `type/reference` | 참조/허브 문서 |
-| `type/template` | 템플릿 |
-| `type/worklog` | 작업일지 |
-| `type/tasks` | 태스크 목록 |
-| `type/spec` | 설계/스펙 문서 |
+| 태그 | 하위 태그 | 용도 |
+|------|----------|------|
+| `type/guide` | `sop`, `tutorial`, `troubleshooting` | 가이드/학습 문서 |
+| `type/adr` | | 아키텍처 결정 기록 |
+| `type/automation` | | 자동화 패턴 |
+| `type/reference` | | 참조/허브 문서 |
+| `type/template` | | 템플릿 |
+| `type/worklog` | | 작업일지 |
+| `type/tasks` | | 태스크 목록 |
+| `type/spec` | `api`, `design`, `schema` | 설계/스펙 문서 |
 
 #### domain/ (해당 시, 복수 가능)
 
-`domain/java`, `domain/db`, `domain/jira`, `domain/git`, `domain/testing`, `domain/sre`, `domain/observability`, `domain/rules`
+| 태그 | 하위 태그 |
+|------|----------|
+| `domain/java` | `spring`, `mybatis`, `gradle` |
+| `domain/db` | `postgresql`, `query`, `schema` |
+| `domain/jira` | `workflow`, `api` |
+| `domain/git` | |
+| `domain/testing` | |
+| `domain/sre` | |
+| `domain/rules` | |
 
 #### service/ (해당 시, 복수 가능)
 
-`service/luppiter`, `service/gaia`, `service/hera`, `service/infrafe`, `service/cmdb`, `service/hermes`
+| 태그 | 하위 태그 (프로젝트/기능) |
+|------|--------------------------|
+| `service/luppiter` | `web`, `scheduler`, `morning-report`, `o11y`, `e2e` |
+| `service/luppiter/o11y` | `host`, `service`, `platform` |
+| `service/gaia` | |
+| `service/hera` | |
+| `service/infrafe` | |
+| `service/cmdb` | |
+| `service/hermes` | |
 
 #### audience/ (필수, 1개)
 
@@ -159,6 +177,12 @@ tags:
 #### personal/ (audience/personal인 경우 필수)
 
 `personal/{사번}` — 개인 문서를 사번으로 그룹화 (예: `personal/82253890`)
+
+#### 태그 확장 원칙
+
+- 새 하위 태그는 **기존 상위 태그 아래** 자유롭게 추가
+- 예: `service/luppiter/o11y/host/zabbix` — 필요하면 4뎁스 이상도 가능
+- 상위 태그만으로 충분하면 하위 태그 불필요 (과도한 세분화 지양)
 
 ### 네비게이션 링크
 

@@ -60,6 +60,22 @@ curl -s -X POST \
 - 표시 예: `| TECHIOPS26-xxx | ⚠️ 제목 |` 또는 제목 뒤에 `⚠️ 기간 내 미진행` 등으로 구분 가능하게 표시.
 - 참고: TECHIOPS26-264처럼 기한이 2/24~2/28이면, 오늘이 2/5일 때는 **기간 밖**이라 경고가 안 걸린다. 2/24 이후에 Backlog/To Do로 남아 있으면 그때 ⚠️ 표시됨.
 
+### 3-1. GitHub PR 조회
+
+현재 리포의 remote origin에서 org/repo를 추출하여 열린 PR을 조회한다.
+
+```bash
+# remote에서 org/repo 추출
+REPO=$(git remote get-url origin | sed 's/.*github.com[:/]\(.*\)\.git/\1/')
+
+# 열린 PR 조회
+gh pr list --repo "$REPO" --state open --json number,title,author,url,updatedAt,reviewRequests,createdAt
+```
+
+- **리뷰 요청받은 PR**: reviewRequests에 내 계정이 포함된 것 → 🔴 표시
+- **리뷰어 미지정 PR**: reviewRequests가 빈 배열 → 🟡 표시
+- **내가 올린 PR**: author가 나인 것 → 별도 표시
+
 ### 4. 출력 형식
 
 ```
@@ -77,6 +93,23 @@ curl -s -X POST \
 
 ### ⚪ Backlog (백로그)
 ...
+
+---
+
+## GitHub PR (대기)
+
+### 🔴 리뷰 요청
+| PR | 작성자 | 제목 | 업데이트 |
+|----|--------|------|----------|
+| #xx | author | 제목 | 날짜 |
+
+### 🟡 리뷰어 미지정
+| PR | 작성자 | 제목 | 업데이트 |
+|----|--------|------|----------|
+
+### 📤 내가 올린 PR
+| PR | 제목 | 상태 | 업데이트 |
+|----|------|------|----------|
 
 ---
 
