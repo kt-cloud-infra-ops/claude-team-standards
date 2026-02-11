@@ -25,6 +25,8 @@ AUTH=$(echo -n 'email@kt.com:API_TOKEN' | base64)
 # ~/.jira-credentials.json (email + apiToken + baseUrl)
 ```
 
+> **Windows 사용자**: Windows 연동은 [jira-windows-guide.md](./jira-windows-guide.md) 참조.
+
 ---
 
 ## MCP vs REST API 비교
@@ -259,4 +261,4 @@ curl -s -X PUT \
 
 ---
 
-**최종 업데이트**: 2026-02-06
+**최종 업데이트**: 2026-02-09
