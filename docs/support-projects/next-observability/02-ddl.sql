@@ -2,6 +2,7 @@
 -- Observability 연동 DDL / DML
 -- 작성일: 2026-01-20
 -- 수정일: 2026-02-06 (공통코드, zone매핑, 데이터 마이그레이션 추가)
+-- 수정일: 2026-02-12 (Confluence v30 반영: trigger_id varchar, 사이즈 변경, obs_event_id 추가)
 -- ============================================================
 
 -- ============================================================
@@ -50,7 +51,7 @@ CREATE TABLE cmon_exception_service_detail (
     region              VARCHAR(30),
     evt_code            VARCHAR(50),
     evt_name            VARCHAR(200),
-    trigger_id          BIGINT,
+    trigger_id          VARCHAR(50),                -- Rule UID (Confluence v30: BIGINT→VARCHAR)
     delete_yn           CHAR(1) DEFAULT 'N',
     cretr_id            VARCHAR(50),
     cret_dt             TIMESTAMP DEFAULT NOW(),
@@ -77,7 +78,7 @@ CREATE TABLE cmon_maintenance_service_detail (
     region              VARCHAR(30),
     evt_code            VARCHAR(50),
     evt_name            VARCHAR(200),
-    trigger_id          BIGINT,
+    trigger_id          VARCHAR(50),                -- Rule UID (Confluence v30: BIGINT→VARCHAR)
     device_status       VARCHAR(20),                -- 활성 | 대기중 | 종료
     delete_yn           CHAR(1) DEFAULT 'N',
     cretr_id            VARCHAR(50),
@@ -101,27 +102,28 @@ COMMENT ON TABLE cmon_maintenance_service_detail IS '메인터넌스 상세 - Se
 -- ============================================================
 
 CREATE TABLE x01_if_event_obs (
+    system_code         VARCHAR(10) NOT NULL,       -- 시스템코드 (ES0010, ES0011 등)
     seq                 BIGINT NOT NULL,            -- 시퀀스 (연동 기준)
     event_id            VARCHAR(30) NOT NULL,       -- Fingerprint
-    type                VARCHAR(30),                -- infra | service | platform
+    type                VARCHAR(30) NOT NULL,       -- infra | service | platform (v30: NOT NULL)
     status              VARCHAR(20),                -- firing | resolved
     region              VARCHAR(30),
     zone                VARCHAR(30),
-    target_ip           VARCHAR(20),                -- Infra용
-    target_name         VARCHAR(100),               -- Service/Platform용
-    target_contents     VARCHAR(1000),
-    event_level         VARCHAR(20),                -- critical | fatal
-    trigger_id          BIGINT,
+    target_ip           VARCHAR(45),                -- Infra용 (v30: 20→45, IPv6 대비)
+    target_name         VARCHAR(256),               -- Service/Platform용 (v30: 100→256)
+    target_contents     VARCHAR(2048),              -- 이벤트 내용 (v30: 1000→2048)
+    event_level         VARCHAR(20) NOT NULL,       -- critical | fatal (v30: NOT NULL)
+    trigger_id          VARCHAR(50),                -- Rule UID (v30: BIGINT→VARCHAR)
     stdnm               VARCHAR(50),                -- 표준서비스명
     occu_time           TIMESTAMP,                  -- 발생 시간
     r_time              TIMESTAMP,                  -- 해소 시간
     source              VARCHAR(20),                -- grafana | mimir | loki
     dashboard_url       VARCHAR(2048),
     dimensions          JSONB,
-    if_dt               TIMESTAMP DEFAULT NOW()
+    if_dt               TIMESTAMP DEFAULT NOW(),
+    CONSTRAINT pk_if_event_obs PRIMARY KEY (system_code, seq)
 );
 
-CREATE INDEX idx_if_event_obs_seq ON x01_if_event_obs(seq);
 CREATE INDEX idx_if_event_obs_type ON x01_if_event_obs(type);
 CREATE INDEX idx_if_event_obs_target_ip ON x01_if_event_obs(target_ip);
 CREATE INDEX idx_if_event_obs_target_nm ON x01_if_event_obs(target_name, region);
@@ -158,9 +160,16 @@ ADD COLUMN IF NOT EXISTS dimensions JSONB;
 
 COMMENT ON COLUMN cmon_event_info.dimensions IS '추가 정보 식별자 (JSON)';
 
+-- obs_event_id: O11y 이벤트 Fingerprint (if_event_id는 int8이라 varchar 저장 불가)
+ALTER TABLE cmon_event_info
+ADD COLUMN IF NOT EXISTS obs_event_id VARCHAR(30);
+
+COMMENT ON COLUMN cmon_event_info.obs_event_id IS 'Observability 이벤트 ID (Fingerprint)';
+
 -- 인덱스
 CREATE INDEX IF NOT EXISTS idx_event_info_source ON cmon_event_info(source);
 CREATE INDEX IF NOT EXISTS idx_event_info_type ON cmon_event_info(type);
+CREATE INDEX IF NOT EXISTS idx_event_info_obs_event_id ON cmon_event_info(obs_event_id);
 
 
 -- ============================================================
