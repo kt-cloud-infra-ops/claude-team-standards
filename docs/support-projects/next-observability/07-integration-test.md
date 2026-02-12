@@ -70,7 +70,9 @@ VALUES
 -- unknown-new-service 는 의도적으로 미등록 (미등록 이벤트 테스트)
 ```
 
-> **참고**: Service target_name에는 suffix(`-abcd1234`)가 붙어서 옴. 매칭 로직은 `service_nm`이 `target_name`의 **prefix**인지 비교해야 함 (예: `next-iam-service`가 `next-iam-service-abcd1234`에 포함).
+> **참고**: Service target_name에는 K8s suffix(`-abcd1234`)가 붙어서 옴. 프로시저 JOIN 조건은 prefix 매칭 사용:
+> `xeo.target_name = svc_mst.service_nm OR xeo.target_name LIKE svc_mst.service_nm || '-%'`
+> Platform은 suffix 없이 exact 매칭됨.
 
 > **필드 매핑**: Mock API의 `cursor` 필드는 DB `x01_if_event_obs` 테이블의 `seq` 컬럼에 저장된다.
 
@@ -106,22 +108,24 @@ python mock_server.py expire 0001 0002
 | # | cursor (뒤 4자리) | type | status | target | event_id | event_level | 매칭 | 비고 |
 |---|:-:|------|--------|--------|----------|:-----------:|:----:|------|
 | 1 | 0001 | infra | firing | 10.2.14.55 | a3b1c5d9e2f4 | critical | O | |
-| 2 | 0002 | infra | firing | 10.2.14.56 | b4c2d6e3f5a7 | warning | O | |
-| 3 | 0003 | infra | **firing** | 10.3.20.10 | **c5d3e7f4a6b8** | warning | O | 0004의 선행 |
-| 4 | 0004 | infra | **resolved** | 10.3.20.10 | **c5d3e7f4a6b8** | warning | O | 0003과 짝 |
-| 5 | 0005 | service | firing | next-iam-service-abcd1234 | d6e4f8a5b7c9 | critical | O | |
-| 6 | 0006 | service | firing | next-portal-service-ef567890 | e7f5a9b6c8d0 | warning | O | |
+| 2 | 0002 | infra | firing | 10.2.14.56 | b4c2d6e3f5a7 | critical | O | |
+| 3 | 0003 | infra | **firing** | 10.3.20.10 | **c5d3e7f4a6b8** | critical | O | 0004의 선행 |
+| 4 | 0004 | infra | **resolved** | 10.3.20.10 | **c5d3e7f4a6b8** | critical | O | 0003과 짝 |
+| 5 | 0005 | service | firing | next-iam-service-abcd1234 | d6e4f8a5b7c9 | critical | O | prefix 매칭 |
+| 6 | 0006 | service | firing | next-portal-service-ef567890 | e7f5a9b6c8d0 | critical | O | prefix 매칭 |
 | 7 | 0007 | service | **firing** | next-billing-service-gh901234 | **f8a6b0c7d9e1** | fatal | O | 0008의 선행 |
 | 8 | 0008 | service | **resolved** | next-billing-service-gh901234 | **f8a6b0c7d9e1** | fatal | O | 0007과 짝 |
-| 9 | 0009 | platform | firing | next-observability | a1b7c1d8e0f2 | warning | O | |
-| 10 | 0010 | platform | firing | next-observability | b2c8d2e9f1a3 | critical | O | |
-| 11 | 0011 | platform | **firing** | next-observability | **c3d9e3f0a2b4** | warning | O | 0012의 선행 |
-| 12 | 0012 | platform | **resolved** | next-observability | **c3d9e3f0a2b4** | warning | O | 0011과 짝 |
+| 9 | 0009 | platform | firing | next-observability | a1b7c1d8e0f2 | critical | O | exact 매칭 |
+| 10 | 0010 | platform | firing | next-observability | b2c8d2e9f1a3 | critical | O | exact 매칭 |
+| 11 | 0011 | platform | **firing** | next-observability | **c3d9e3f0a2b4** | critical | O | 0012의 선행 |
+| 12 | 0012 | platform | **resolved** | next-observability | **c3d9e3f0a2b4** | critical | O | 0011과 짝 |
 | 13 | 0013 | infra | firing | **10.99.99.99** | d4e0f4a1b3c5 | critical | **X** | 미등록 |
 | 14 | 0014 | service | firing | **unknown-new-service-zz999999** | e5f1a5b2c4d6 | fatal | **X** | 미등록 |
-| 15 | 0015 | infra | firing | 10.2.14.100 | f6a2b6c3d5e7 | warning | O | CSW |
+| 15 | 0015 | infra | firing | 10.2.14.100 | f6a2b6c3d5e7 | critical | O | CSW |
 
-> **firing/resolved 짝**: 같은 `event_id`를 공유. 프로시저에서 resolved 이벤트는 같은 event_id의 firing row를 UPDATE.
+> **firing/resolved 짝**: 같은 `event_id`를 공유. 프로시저에서 resolved 이벤트는 같은 obs_event_id의 firing row를 UPDATE.
+> **event_level**: 설계 스펙상 O11y API는 `critical`과 `fatal`만 발생. 프로시저 필터: `IN ('critical', 'fatal')`.
+> **Service prefix 매칭**: target_name에 K8s suffix(-[hex8])가 붙어옴. 프로시저 JOIN 조건: `target_name LIKE service_nm || '-%'` OR exact match.
 
 #### 메인터넌스 5건
 
@@ -262,11 +266,11 @@ WHERE event_id = 'c5d3e7f4a6b8' AND status = 'resolved';
 |------|------|
 | **목적** | Infra firing 이벤트가 inventory_master 매칭 후 cmon_event_info에 INSERT |
 | **사전조건** | TC-EVT-001 완료 (x01_if_event_obs에 15건) |
-| **실행** | `CALL p_combine_event_obs()` |
+| **실행** | `CALL p_combine_event_obs('ES0010')` |
 | **기대결과** | |
-| | event_id `a3b1c5d9e2f4` (cursor 0001) → cmon_event_info INSERT |
+| | obs_event_id `a3b1c5d9e2f4` (cursor 0001) → cmon_event_info INSERT |
 | | `target_ip = '10.2.14.55'` |
-| | `control_area = 'HW'` (inventory_master에서 매핑) |
+| | `gubun = 'HW'` (inventory_master.control_area에서 매핑) |
 | | `host_group_nm = 'NEXT-Infra-Storage-DX-G-GB'` |
 | | `source = 'mimir'`, `type = 'infra'` |
 | | `dashboard_url` IS NOT NULL |
@@ -274,81 +278,93 @@ WHERE event_id = 'c5d3e7f4a6b8' AND status = 'resolved';
 
 **검증 SQL**:
 ```sql
-SELECT event_id, target_ip, control_area, host_group_nm,
+SELECT event_id, obs_event_id, target_ip, gubun, host_group_nm,
        source, type, dashboard_url, dimensions
 FROM cmon_event_info
-WHERE event_id = 'a3b1c5d9e2f4';
+WHERE obs_event_id = 'a3b1c5d9e2f4';
+-- 기대: gubun='HW', source='mimir', type='infra'
+-- NOTE: event_id는 시퀀스(int8), obs_event_id가 O11y fingerprint
 ```
 
-### TC-CMB-002: resolved 이벤트 매칭 (event_id 기반 UPDATE)
+### TC-CMB-002: resolved 이벤트 매칭 (obs_event_id 기반 UPDATE)
 
 | 항목 | 내용 |
 |------|------|
-| **목적** | resolved 이벤트가 같은 event_id의 firing row를 UPDATE |
+| **목적** | resolved 이벤트가 같은 obs_event_id의 firing row를 UPDATE |
 | **사전조건** | cursor 0003 (firing, event_id: c5d3e7f4a6b8) → INSERT 완료 |
 | **테스트 대상** | cursor 0004 (resolved, event_id: c5d3e7f4a6b8) |
-| **실행** | `CALL p_combine_event_obs()` |
+| **실행** | `CALL p_combine_event_obs('ES0010')` |
 | **기대결과** | |
-| | cmon_event_info에서 `event_id = 'c5d3e7f4a6b8'` 인 row UPDATE |
+| | cmon_event_info에서 `obs_event_id = 'c5d3e7f4a6b8'` 인 row UPDATE |
 | | `r_time = '2026-02-11T09:05:00Z'` |
-| | `status = 'resolved'` |
+| | `zabbix_state = '해소'` |
 | | 신규 INSERT 아님 (기존 firing row 업데이트) |
 
-> **핵심**: firing과 resolved는 **동일한 event_id**를 공유. 프로시저에서 `WHERE event_id = v_row.event_id`로 기존 firing row를 찾아 UPDATE.
+> **핵심**: firing과 resolved는 **동일한 event_id(fingerprint)**를 공유. 프로시저에서 `WHERE obs_event_id = xeo.event_id`로 기존 firing row를 찾아 UPDATE. `zabbix_state='해소'`, `r_time` 갱신.
 
 **검증 SQL**:
 ```sql
 -- firing→resolved UPDATE 확인 (infra)
-SELECT event_id, status, r_time
+SELECT obs_event_id, zabbix_state, r_time
 FROM cmon_event_info
-WHERE event_id = 'c5d3e7f4a6b8';
--- 기대: status='resolved', r_time='2026-02-11T09:05:00Z'
+WHERE obs_event_id = 'c5d3e7f4a6b8';
+-- 기대: zabbix_state='해소', r_time='2026-02-11T09:05:00Z'
 
 -- Service resolved도 동일 패턴 (cursor 0007→0008)
-SELECT event_id, status, r_time
+SELECT obs_event_id, zabbix_state, r_time
 FROM cmon_event_info
-WHERE event_id = 'f8a6b0c7d9e1';
--- 기대: status='resolved', r_time='2026-02-11T08:45:00Z'
+WHERE obs_event_id = 'f8a6b0c7d9e1';
+-- 기대: zabbix_state='해소', r_time='2026-02-11T08:45:00Z'
 
 -- Platform resolved도 동일 패턴 (cursor 0011→0012)
-SELECT event_id, status, r_time
+SELECT obs_event_id, zabbix_state, r_time
 FROM cmon_event_info
-WHERE event_id = 'c3d9e3f0a2b4';
--- 기대: status='resolved', r_time='2026-02-11T07:30:00Z'
+WHERE obs_event_id = 'c3d9e3f0a2b4';
+-- 기대: zabbix_state='해소', r_time='2026-02-11T07:30:00Z'
 ```
 
-### TC-CMB-003: Service 이벤트 매칭
+### TC-CMB-003: Service 이벤트 매칭 (prefix 매칭)
 
 | 항목 | 내용 |
 |------|------|
-| **목적** | Service 이벤트가 cmon_service_inventory_master 매칭 후 INSERT |
+| **목적** | Service 이벤트가 cmon_service_inventory_master prefix 매칭 후 INSERT |
 | **사전조건** | cursor 0005 이벤트 (target_name: next-iam-service-abcd1234) |
-| **실행** | `CALL p_combine_event_obs()` |
+| **실행** | `CALL p_combine_event_obs('ES0010')` |
 | **기대결과** | |
-| | `target_name`에서 suffix 제거 후 `service_nm = 'next-iam-service'` + `region = 'DX-G-SE'` 매칭 |
+| | prefix 매칭: `'next-iam-service-abcd1234' LIKE 'next-iam-service' || '-%'` → true |
+| | `service_nm = 'next-iam-service'` + `region = 'DX-G-SE'` 매칭 |
 | | cmon_event_info INSERT |
-| | `control_area = 'Service'` (svc_type에서 매핑) |
+| | `gubun = 'service'` (svc_type 값 그대로) |
+| | `hostname = 'next-iam-service'` (service_nm 저장) |
 | | `host_group_nm = 'NEXT-vpc-DX-G-SE'` |
 | | `source = 'loki'`, `type = 'service'` |
 
+> **프로시저 JOIN 조건 (수정 필요)**:
+> ```sql
+> INNER JOIN cmon_service_inventory_master svc_mst
+>     ON svc_mst.region = xeo.region AND svc_mst.use_yn = 'Y'
+>     AND (xeo.target_name = svc_mst.service_nm
+>          OR xeo.target_name LIKE svc_mst.service_nm || '-%')
+> ```
+
 **검증 SQL**:
 ```sql
-SELECT event_id, target_name, type, source, host_group_nm
+SELECT obs_event_id, hostname, type, source, gubun, host_group_nm
 FROM cmon_event_info
-WHERE event_id = 'd6e4f8a5b7c9';
--- 기대: type='service', source='loki'
+WHERE obs_event_id = 'd6e4f8a5b7c9';
+-- 기대: type='service', source='loki', gubun='service', hostname='next-iam-service'
 ```
 
-### TC-CMB-004: Platform 이벤트 매칭
+### TC-CMB-004: Platform 이벤트 매칭 (exact 매칭)
 
 | 항목 | 내용 |
 |------|------|
-| **목적** | Platform 이벤트가 cmon_service_inventory_master 매칭 후 INSERT |
+| **목적** | Platform 이벤트가 cmon_service_inventory_master 정확일치 매칭 후 INSERT |
 | **사전조건** | cursor 0009 이벤트 (target_name: next-observability, region: DX-G-GB) |
-| **실행** | `CALL p_combine_event_obs()` |
+| **실행** | `CALL p_combine_event_obs('ES0010')` |
 | **기대결과** | |
-| | `service_nm = 'next-observability'` + `region = 'DX-G-GB'` 매칭 |
-| | `control_area = 'Platform'` |
+| | exact 매칭: `service_nm = 'next-observability'` + `region = 'DX-G-GB'` |
+| | `gubun = 'platform'` (svc_type 값 그대로) |
 | | `source = 'mimir'`, `type = 'platform'` |
 
 ### TC-CMB-005: 미등록 Infra 이벤트 Skip
@@ -357,15 +373,20 @@ WHERE event_id = 'd6e4f8a5b7c9';
 |------|------|
 | **목적** | inventory_master에 없는 IP의 이벤트는 cmon_event_info에 저장 안 함 |
 | **사전조건** | cursor 0013 이벤트 (target_ip: 10.99.99.99 — 미등록) |
-| **실행** | `CALL p_combine_event_obs()` |
+| **실행** | `CALL p_combine_event_obs('ES0010')` |
 | **기대결과** | |
-| | cmon_event_info에 해당 event_id **없음** |
-| | x01_if_event_obs에 해당 row는 processed_yn = 'Y' (또는 남아있음) |
+| | cmon_event_info에 해당 obs_event_id **없음** |
+| | x01_if_event_obs에서 처리 완료 후 DELETE됨 (프로시저 §3에서 삭제) |
 
 **검증 SQL**:
 ```sql
-SELECT count(*) FROM cmon_event_info WHERE event_id = 'd4e0f4a1b3c5';
+SELECT count(*) FROM cmon_event_info WHERE obs_event_id = 'd4e0f4a1b3c5';
 -- 기대: 0
+
+-- 임시 테이블에서도 삭제 확인
+SELECT count(*) FROM x01_if_event_obs
+WHERE system_code = 'ES0010' AND event_id = 'd4e0f4a1b3c5';
+-- 기대: 0 (프로시저가 처리 후 DELETE)
 ```
 
 ### TC-CMB-006: 미등록 Service 이벤트 Skip
@@ -374,10 +395,11 @@ SELECT count(*) FROM cmon_event_info WHERE event_id = 'd4e0f4a1b3c5';
 |------|------|
 | **목적** | cmon_service_inventory_master에 없는 서비스의 이벤트는 저장 안 함 |
 | **사전조건** | cursor 0014 이벤트 (target_name: unknown-new-service-zz999999 — 미등록) |
-| **실행** | `CALL p_combine_event_obs()` |
+| **실행** | `CALL p_combine_event_obs('ES0010')` |
 | **기대결과** | |
-| | cmon_event_info에 해당 event_id **없음** |
-| | 미등록 알림 대상으로 남아있음 (§7 참고) |
+| | cmon_event_info에 해당 obs_event_id **없음** |
+| | x01_if_event_obs에서 DELETE됨 |
+| | 미등록 알림 대상으로 처리 (§7 참고) |
 
 ### TC-CMB-007: 처리 결과 집계
 
@@ -391,7 +413,7 @@ SELECT count(*) FROM cmon_event_info WHERE event_id = 'd4e0f4a1b3c5';
 -- 전체 등록 건수
 -- 15건 중 미등록 2건(cursor 0013, 0014) 제외 = 13건
 -- firing 10건 → INSERT 10건
--- resolved 3건(cursor 0004, 0008, 0012) → 같은 event_id의 firing row UPDATE
+-- resolved 3건(cursor 0004, 0008, 0012) → 같은 obs_event_id의 firing row UPDATE
 -- 최종: cmon_event_info에 10 rows
 SELECT count(*) FROM cmon_event_info WHERE source IN ('mimir', 'loki');
 -- 기대: 10
@@ -401,15 +423,19 @@ SELECT type, count(*) FROM cmon_event_info
 WHERE source IN ('mimir', 'loki')
 GROUP BY type;
 -- 기대: infra=4, service=3, platform=3
--- infra: 0001, 0002, 0003(→resolved), 0015 = 4건
--- service: 0005, 0006, 0007(→resolved) = 3건
--- platform: 0009, 0010, 0011(→resolved) = 3건
+-- infra: 0001, 0002, 0003(→해소), 0015 = 4건
+-- service: 0005, 0006, 0007(→해소) = 3건
+-- platform: 0009, 0010, 0011(→해소) = 3건
 
--- status별 건수
-SELECT status, count(*) FROM cmon_event_info
+-- zabbix_state별 건수
+SELECT zabbix_state, count(*) FROM cmon_event_info
 WHERE source IN ('mimir', 'loki')
-GROUP BY status;
--- 기대: firing=7, resolved=3
+GROUP BY zabbix_state;
+-- 기대: '지속'=7, '해소'=3
+
+-- 임시 테이블 정리 확인
+SELECT count(*) FROM x01_if_event_obs WHERE system_code = 'ES0010';
+-- 기대: 0 (프로시저가 처리 후 DELETE)
 ```
 
 ---
