@@ -99,9 +99,9 @@ public enum EventWorkerFactory {
 
 | system_code | batch_bean | 리전 | DB URL | 비고 |
 |-------------|------------|------|--------|------|
-| OBS001 | EST030 | GB (경북) | jdbc:postgresql://{gb-host}:{port}/{db} | |
-| OBS002 | EST031 | SE (서울) | jdbc:postgresql://{se-host}:{port}/{db} | |
-| OBS00N | EST03N | {신규리전} | jdbc:postgresql://{new-host}:{port}/{db} | 확장 시 |
+| ES0010 | EST030 | SE (서울) | http://{o11y-se-api-url} | 06-scheduler-api-migration.md 참조 |
+| ES0011 | EST030 | GB (경북) | http://{o11y-gb-api-url} | 06-scheduler-api-migration.md 참조 |
+| ES001N | EST030 | {신규리전} | http://{new-api-url} | 확장 시 |
 
 ### 2.3 ObservabilityEventWorker 클래스
 
@@ -359,7 +359,7 @@ INSERT INTO c01_batch_event (
     db_pwd,
     use_yn
 ) VALUES (
-    'OBS001',
+    'ES0010',
     'EST030',
     'Observability 이벤트 연동',
     'EST030',
@@ -1166,7 +1166,7 @@ public class ObsApiService {
 - [ ] ObservabilityEventWorker.java 생성
 - [ ] IFEventMapper.java에 observabilityEvent 쿼리 추가
 - [ ] EventBatchMapper.xml에 insertTempEventObs 추가
-- [ ] C01_BATCH_EVENT 테이블에 OBS001 등록
+- [ ] C01_BATCH_EVENT 테이블에 ES0010/ES0011 등록
 - [ ] DB 연결 테스트 (Observability DB)
 - [ ] seq 기반 증분 조회 정상 동작
 - [ ] x01_if_event_obs INSERT 정상

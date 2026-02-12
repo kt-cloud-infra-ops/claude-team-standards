@@ -12,7 +12,7 @@ tags:
 # O11y 리뷰 추적 문서
 
 > 이 문서는 세션 간 컨텍스트 유지용. 새 세션에서 "o11y" 키워드로 요청 시 이 파일을 먼저 읽는다.
-> 최종 업데이트: 2026-02-12 (코드리뷰+테스트 단계)
+> 최종 업데이트: 2026-02-12 (코드리뷰+테스트 단계, H4/H5 완료)
 > **현재 단계: 개발사 코드 완료 → 코드리뷰 + 통합테스트 검증 중**
 
 ---
@@ -96,8 +96,8 @@ Confluence: "유피테르 이벤트 테이블 연동 관련" (page ID: 154933824
 | H1 | processed_yn 컬럼 미존재 | TC-CMB-005 | DDL에 해당 컬럼 없음. 프로시저는 처리 후 DELETE 방식 | [x] 07-integration-test.md 수정 완료 |
 | H2 | gubun vs control_area 컬럼명 | TC-CMB-001,003 | cmon_event_info에는 `gubun` 컬럼으로 저장. 테스트는 `control_area` 참조 | [x] 07-integration-test.md 수정 완료 |
 | H3 | svc_type 대소문자 | TC-CMB-003 | 테스트 `control_area='Service'` (Pascal). 실제 `gubun='service'` (lower) | [x] 07-integration-test.md 수정 완료 |
-| H4 | Mock 서버 미존재 | §1.2 | `workspace/o11y-mock/mock_server.py` 파일 없음. 생성 필요 | [ ] |
-| H5 | system_code 불일치 | §1.1, TC-EVT-001 | 테스트 `ES0010`, 구현 가이드 `OBS001`. 통일 필요 | [ ] |
+| H4 | Mock 서버 미존재 | §1.2 | `workspace/o11y-mock/mock_server.py` 생성 완료. API 계약 수정: cursor→seq, since_cursor→since_seq, items→events, last_cursor→last_seq, warning→critical | [x] |
+| H5 | system_code 불일치 | §1.1, TC-EVT-001 | `ES0010` 통일 완료 (06-scheduler-api-migration.md 기준). implementation-guide.md OBS001→ES0010 수정 | [x] |
 
 ### 4.3 MEDIUM — 확인/보완 필요
 
@@ -224,8 +224,13 @@ Confluence: "유피테르 이벤트 테이블 연동 관련" (page ID: 154933824
 - [x] C4: 검증 SQL `status='resolved'` → `zabbix_state='해소'` 수정 완료
 - [x] H1: `processed_yn` → DELETE 방식 반영 완료
 - [x] H2,H3: `control_area` → `gubun`, 대소문자 수정 완료
-- [ ] H4: Mock 서버 생성 (workspace/o11y-mock/)
-- [ ] H5: system_code 통일 (ES0010 vs OBS001)
+- [x] H4: Mock 서버 생성 완료 (workspace/o11y-mock/mock_server.py)
+  - Worker API 계약 일치: since_seq, events[], last_seq, seq 필드
+  - event_level: 전건 critical/fatal (C2 결정 반영)
+  - 기존 test-o11y-mock/ 대비 변경: cursor→seq, items→events, warning→critical
+- [x] H5: system_code `ES0010` 통일 완료
+  - 근거: 06-scheduler-api-migration.md (설계 확정문서)
+  - implementation-guide.md 3건 수정 (OBS001→ES0010)
 
 ### 7.2 개발사 피드백 전달
 
