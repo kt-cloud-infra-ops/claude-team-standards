@@ -8,9 +8,7 @@
 <optional body>
 ```
 
-Types: feat, fix, refactor, docs, test, chore, perf, ci
-
-Note: Attribution disabled globally via ~/.claude/settings.json.
+Types: feat, fix, refactor, docs, test, chore, rules, commands
 
 ## Pull Request Workflow
 
@@ -24,19 +22,19 @@ When creating PRs:
 ## Feature Implementation Workflow
 
 1. **Plan First**
-   - Use **planner** agent to create implementation plan
+   - Use `/plan` workflow (or a planner role agent if supported)
    - Identify dependencies and risks
    - Break down into phases
 
 2. **TDD Approach**
-   - Use **tdd-guide** agent
+   - Use `/tdd` workflow (or a tdd-guide role agent if supported)
    - Write tests first (RED)
    - Implement to pass tests (GREEN)
    - Refactor (IMPROVE)
    - Verify 80%+ coverage
 
 3. **Code Review**
-   - Use **code-reviewer** agent immediately after writing code
+   - Use `/code-review` workflow (or a code-reviewer role agent if supported)
    - Address CRITICAL and HIGH issues
    - Fix MEDIUM issues when possible
 

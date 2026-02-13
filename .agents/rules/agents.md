@@ -1,11 +1,15 @@
 # Agent Orchestration
 
-## Available Agents
+## Core Principle
 
-Located in `~/.claude/agents/`:
+- Team-standard execution must be reproducible from this repository alone.
+- Required sources: `AGENTS.md`, `.agents/rules/`, `.agents/commands/`.
+- Tool-specific home paths (`~/.claude/...`, `~/.codex/...`) are optional accelerators only.
 
-| Agent | Purpose | When to Use |
-|-------|---------|-------------|
+## Role-Based Agents
+
+| Role | Purpose | When to Use |
+|------|---------|-------------|
 | planner | Implementation planning | Complex features, refactoring |
 | architect | System design | Architectural decisions |
 | tdd-guide | Test-driven development | New features, bug fixes |
@@ -15,6 +19,9 @@ Located in `~/.claude/agents/`:
 | e2e-runner | E2E testing | Critical user flows |
 | refactor-cleaner | Dead code cleanup | Code maintenance |
 | doc-updater | Documentation | Updating docs |
+
+If a tool supports sub-agents, map these role names to the tool's equivalent feature.
+If not, execute the same workflow directly using `.agents/commands/` and `.agents/rules/`.
 
 ## Immediate Agent Usage
 
@@ -52,7 +59,7 @@ For complex problems, use split role sub-agents:
 
 ## Related Rules
 
-- [performance.md](performance.md) - Model selection for agents (Haiku/Sonnet/Opus)
+- [performance.md](performance.md) - Model selection guidance
 - [git-workflow.md](git-workflow.md) - Agent usage in feature workflow
 - [testing.md](testing.md) - tdd-guide, e2e-runner context
 - [security.md](security.md) - security-reviewer context

@@ -37,6 +37,6 @@ alwaysApply: false
 
 ## 코딩 규칙
 
-- Java 스타일: docs/claude_lessons_learned/java/kt-cloud-style.md
-- SRE 패턴: docs/claude_lessons_learned/java/sre-coding.md
-- 디자인 패턴: docs/claude_lessons_learned/java/design-patterns.md
+- Java 스타일: docs/lessons_learned/java/kt-cloud-style.md
+- SRE 패턴: docs/lessons_learned/java/sre-coding.md
+- 디자인 패턴: docs/lessons_learned/java/design-patterns.md

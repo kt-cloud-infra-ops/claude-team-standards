@@ -1,0 +1,18 @@
+---
+description: Team-wide baseline instructions for all work in this repository
+globs:
+  - "**/*"
+alwaysApply: true
+---
+
+# Team-Wide Baseline
+
+이 저장소의 단일 지침 소스는 `AGENTS.md`입니다.
+모든 작업에서 아래 순서로 규칙을 적용하세요:
+
+1. `AGENTS.md` (최상위 기준)
+2. `.agents/rules/*.md` (상세 규칙)
+3. `.agents/commands/*.md` (워크플로우)
+
+서비스별 Cursor rule 파일(`luppiter.mdc` 등)은 공통 규칙을 보완하는 용도입니다.
+충돌 시 `AGENTS.md`를 우선합니다.
