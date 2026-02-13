@@ -5,6 +5,7 @@ workspace/*
 # 개인 설정
 workspace.json
 .claude/settings.local.json
+.claude/settings.json
 
 # 인증 정보 (절대 커밋 금지)
 *credentials*.json
@@ -41,3 +42,7 @@ lib/
 # Gemini (개인용)
 .gemini
 gemini.md
+
+# Codex 로컬 복사본 (AGENTS.md가 인라인 규칙 포함하므로 불필요)
+.claude.codex-copy/
+skills/

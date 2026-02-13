@@ -33,7 +33,7 @@ tags:
 |------|----------|------|
 | **개인 전용** | 직접 커밋 가능 | `docs/personal/{사번}/` |
 | **서비스 담당** | 담당자 직접, 타인은 PR | `docs/service/{담당서비스}/` |
-| **공용** | 항상 PR 필요 | `CLAUDE.md`, `.claude/commands/` |
+| **공용** | 항상 PR 필요 | `CLAUDE.md`, `.agents/commands/` |
 
 ### 3. 커밋 컨벤션
 

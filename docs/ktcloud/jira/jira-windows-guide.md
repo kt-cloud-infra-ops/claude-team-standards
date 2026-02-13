@@ -7,7 +7,7 @@
 1. **API 토큰 미리 발급**  
    https://id.atlassian.com/manage-profile/security/api-tokens 에서 Create API token 후 복사해 둡니다.
 2. **저장소 루트로 이동**  
-   `cd c:\git_dev\claude-team-standards` (또는 클론한 경로).
+   `cd c:\git_dev\ai-team-standards` (또는 클론한 경로).
 3. **설정 스크립트 실행**  
    `.\docs\ktcloud\jira\setup-jira-windows.ps1`  
    - 인증 파일이 없으면 **Jira 이메일(KT 이메일)** 과 **API 토큰** 입력을 묻습니다.  

@@ -11,7 +11,7 @@ tags:
 
 MCP Atlassian 도구의 한계로 인해 curl을 통한 직접 API 호출이 필요한 경우가 있습니다.
 
-> **워크플로우 규칙(이슈 생성/수정/완료 처리)은 `.claude/rules/jira-workflow.md` 참조**
+> **워크플로우 규칙(이슈 생성/수정/완료 처리)은 `.agents/rules/jira-workflow.md` 참조**
 
 ---
 
