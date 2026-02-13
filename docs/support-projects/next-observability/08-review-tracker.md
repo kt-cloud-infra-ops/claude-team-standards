@@ -12,7 +12,7 @@ tags:
 # O11y 리뷰 추적 문서
 
 > 이 문서는 세션 간 컨텍스트 유지용. 새 세션에서 "o11y" 키워드로 요청 시 이 파일을 먼저 읽는다.
-> 최종 업데이트: 2026-02-12 (코드리뷰+테스트 단계, H4/H5 완료)
+> 최종 업데이트: 2026-02-13 (개발사 diff 코드리뷰 3건 완료)
 > **현재 단계: 개발사 코드 완료 → 코드리뷰 + 통합테스트 검증 중**
 
 ---
@@ -162,6 +162,47 @@ Confluence: "유피테르 이벤트 테이블 연동 관련" (page ID: 154933824
 | 6 | HIGH | prompt() XSS 미검증 | subMaintenanceRegistPop.jsp |
 | 7 | HIGH | INFO 레벨 과다 로깅 | EvtExcpService.java |
 
+### 5.4 개발사 diff 코드리뷰 (2026-02-12~13)
+
+> 개발사가 제출한 diff 파일을 feature/o11y 레퍼런스와 비교 → Jira 댓글로 피드백
+
+| LUPR | 기능 | CRITICAL | HIGH | MEDIUM | Jira 댓글 | 상태 |
+|------|------|----------|------|--------|-----------|------|
+| LUPR-683 | 이벤트 예외 관리 기능 개선 | 1 | 2 | 2 | 174787 | 완료 |
+| LUPR-684 | 메인터넌스 관리 기능 개선 | 3 | 5 | 1 | 174817 | 완료 |
+| LUPR-692 | 관제삭제 기능 OBS 확장 | 3 | 2 | 0 | 174837 | 완료 |
+
+#### LUPR-683 주요 이슈
+
+| # | 심각도 | 내용 |
+|---|--------|------|
+| C1 | CRITICAL | obsMaintenanceRegistPop.jsp — system_code 하드코딩 누락 |
+| H1 | HIGH | 서비스 메인터넌스 등록 시 silence_id 미저장 |
+| H2 | HIGH | 예외 등록 팝업 — 타입 선택 후 초기화 누락 |
+
+#### LUPR-684 주요 이슈
+
+| # | 심각도 | 내용 |
+|---|--------|------|
+| C1 | CRITICAL | toUtcFormat() — KST→UTC 변환 없이 'Z' 접미사만 추가 |
+| C2 | CRITICAL | expireMaintenance type 파라미터 누락 |
+| C3 | CRITICAL | saveMaintenanceObs/deleteMaintenanceObs resultMap 덮어쓰기 |
+| H1 | HIGH | maintenanceMail() NPE — type null 시 크래시 |
+| H2 | HIGH | flag 누적 버그 — 복수 호스트 처리 시 이전 값 잔류 |
+| H3 | HIGH | SQL endhost vs hosts 키 불일치 |
+| H4 | HIGH | deleteMaintenanceHostList OR→AND 논리 오류 |
+| H5 | HIGH | == 참조 비교 (String) |
+
+#### LUPR-692 주요 이슈
+
+| # | 심각도 | 내용 |
+|---|--------|------|
+| C1 | CRITICAL | getRemoveManageDetailList() — result 변수 덮어쓰기로 INFRA 호스트 데이터 소실 |
+| C2 | CRITICAL | removeInfraInventory/removeServiceInventory — hostCloseMaintenance 결과 NPE |
+| C3 | CRITICAL | removeInfraInventory/removeServiceInventory — @Transactional 누락 |
+| H1 | HIGH | insertServiceInventoryHistory SQL — type, control_area 모두 svc_type 매핑 |
+| H2 | HIGH | selectObsInfraMaintenanceList SQL 주석 ID 불일치 (복사-붙여넣기) |
+
 ---
 
 ## 6. 프로젝트별 변경 체크리스트
@@ -237,6 +278,9 @@ Confluence: "유피테르 이벤트 테이블 연동 관련" (page ID: 154933824
 - [ ] 프로시저 prefix 매칭 버그 (C1) — 최우선
 - [ ] 코드리뷰 CRITICAL 3건 (C2,C3,C4 from §5.1)
 - [ ] 코드리뷰 HIGH 3건
+- [x] LUPR-683 diff 리뷰 — Jira 댓글 174787 (C1, H2, M2)
+- [x] LUPR-684 diff 리뷰 — Jira 댓글 174817 (C3, H5, M1)
+- [x] LUPR-692 diff 리뷰 — Jira 댓글 174837 (C3, H2)
 
 ### 7.3 Scheduler UNION ALL 미확인 항목
 
