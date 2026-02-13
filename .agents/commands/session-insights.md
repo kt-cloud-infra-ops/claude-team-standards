@@ -1,8 +1,9 @@
 세션 데이터를 분석하여 인사이트 대시보드를 생성합니다.
 
 ## 데이터 소스
-- `~/.claude/projects/` - 프로젝트별 세션 기록 (*.jsonl)
-- `~/.claude/todos/` - TODO 기록
+다음 경로를 순서대로 확인해 존재하는 경로만 사용:
+- `.claude/projects/` 또는 `~/.claude/projects/` - 프로젝트별 세션 기록 (*.jsonl)
+- `.claude/todos/` 또는 `~/.claude/todos/` - TODO 기록
 
 ## 분석 항목
 
@@ -10,11 +11,18 @@
 다음 bash 명령어로 세션 데이터를 수집하세요:
 
 ```bash
+# 데이터 경로 자동 탐색
+PROJECT_DIR=".claude/projects"
+TODO_DIR=".claude/todos"
+[ -d "$PROJECT_DIR" ] || PROJECT_DIR="$HOME/.claude/projects"
+[ -d "$TODO_DIR" ] || TODO_DIR="$HOME/.claude/todos"
+
 # 모든 프로젝트의 세션 파일 목록
-find ~/.claude/projects -name "*.jsonl" -type f 2>/dev/null
+find "$PROJECT_DIR" -name "*.jsonl" -type f 2>/dev/null
 
 # 각 세션 파일에서 timestamp 추출하여 분석
-for f in ~/.claude/projects/*/*.jsonl; do
+for f in "$PROJECT_DIR"/*/*.jsonl; do
+  [ -e "$f" ] || continue
   echo "=== $f ==="
   cat "$f" 2>/dev/null | jq -r 'select(.type=="user") | .timestamp' 2>/dev/null | head -5
 done
@@ -31,7 +39,7 @@ timestamp의 시간대를 분석하여:
 - 시간대별 세션 분포
 
 ### 4. 프로젝트별 활동량
-`~/.claude/projects/` 하위 폴더별로:
+`$PROJECT_DIR` 하위 폴더별로:
 - 세션 파일 크기 (대략적인 활동량)
 - 마지막 세션 시간
 - 총 세션 수

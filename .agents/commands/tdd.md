@@ -4,7 +4,7 @@ description: Enforce test-driven development workflow. Scaffold interfaces, gene
 
 # TDD Command
 
-This command invokes the **tdd-guide** agent to enforce test-driven development methodology.
+This command invokes a **tdd-guide role workflow** to enforce test-driven development methodology.
 
 ## What This Command Does
 
@@ -25,7 +25,7 @@ Use `/tdd` when:
 
 ## How It Works
 
-The tdd-guide agent will:
+The TDD workflow will:
 
 1. **Define interfaces** for inputs/outputs
 2. **Write tests that will FAIL** (because code doesn't exist yet)
@@ -313,14 +313,12 @@ Never skip the RED phase. Never write code before tests.
 
 - Use `/plan` first to understand what to build
 - Use `/tdd` to implement with tests
-- Use `/build-and-fix` if build errors occur
+- Use `/build-fix` if build errors occur
 - Use `/code-review` to review implementation
 - Use `/test-coverage` to verify coverage
 
-## Related Agents
+## Related Roles
 
-This command invokes the `tdd-guide` agent located at:
-`~/.claude/agents/tdd-guide.md`
-
-And can reference the `tdd-workflow` skill at:
-`~/.claude/skills/tdd-workflow/`
+- Prefer a tdd-guide sub-agent if your tool supports it.
+- If not, follow this document directly.
+- Do not require tool-specific home paths to execute this command.

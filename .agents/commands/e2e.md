@@ -4,7 +4,7 @@ description: Generate and run end-to-end tests with Playwright. Creates test jou
 
 # E2E Command
 
-This command invokes the **e2e-runner** agent to generate, maintain, and execute end-to-end tests using Playwright.
+This command invokes an **e2e-runner role workflow** to generate, maintain, and execute end-to-end tests using Playwright.
 
 ## What This Command Does
 
@@ -25,7 +25,7 @@ Use `/e2e` when:
 
 ## How It Works
 
-The e2e-runner agent will:
+The E2E workflow will:
 
 1. **Analyze user flow** and identify test scenarios
 2. **Generate Playwright test** using Page Object Model pattern
@@ -335,10 +335,11 @@ For PMX, prioritize these E2E tests:
 - Use `/e2e` for integration and user journey tests
 - Use `/code-review` to verify test quality
 
-## Related Agents
+## Related Roles
 
-This command invokes the `e2e-runner` agent located at:
-`~/.claude/agents/e2e-runner.md`
+- Prefer an e2e-runner sub-agent if your tool supports it.
+- If not, follow this document directly.
+- Do not require tool-specific home paths to execute this command.
 
 ## Quick Commands
 

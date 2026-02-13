@@ -4,7 +4,7 @@ description: Restate requirements, assess risks, and create step-by-step impleme
 
 # Plan Command
 
-This command invokes the **planner** agent to create a comprehensive implementation plan before writing any code.
+This command invokes a **planner role workflow** to create a comprehensive implementation plan before writing any code.
 
 ## What This Command Does
 
@@ -24,7 +24,7 @@ Use `/plan` when:
 
 ## How It Works
 
-The planner agent will:
+The planning workflow will:
 
 1. **Analyze the request** and restate requirements in clear terms
 2. **Break down into phases** with specific, actionable steps
@@ -104,10 +104,11 @@ If you want changes, respond with:
 
 After planning:
 - Use `/tdd` to implement with test-driven development
-- Use `/build-and-fix` if build errors occur
+- Use `/build-fix` if build errors occur
 - Use `/code-review` to review completed implementation
 
-## Related Agents
+## Related Roles
 
-This command invokes the `planner` agent located at:
-`~/.claude/agents/planner.md`
+- Prefer a planner sub-agent if your tool supports it.
+- If not, follow this document directly.
+- Do not require tool-specific home paths to execute this command.
